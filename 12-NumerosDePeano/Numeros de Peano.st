@@ -31,28 +31,28 @@ successor
 	
 	^aNumber successor! !
 
-!I class methodsFor: 'operation' stamp: 'nn 4/29/2020 11:32:23'!
+!I class methodsFor: 'operation' stamp: 'nn 4/29/2020 12:41:31'!
 - aNumber
-	^self descripcionDeErrorDeNumerosNegativosNoSoportados.
+	^self error: self descripcionDeErrorDeNumerosNegativosNoSoportados.
 		
 		! !
 
-!I class methodsFor: 'operation' stamp: 'nn 4/29/2020 11:32:39'!
+!I class methodsFor: 'operation' stamp: 'nn 4/29/2020 12:41:25'!
 / aNumber
 	
 	aNumber = I
 	ifTrue: [^ I ]
-	ifFalse: [ ^self descripcionDeErrorDeNoSePuedeDividirPorUnNumeroMayor ]! !
+	ifFalse: [ ^self error: self descripcionDeErrorDeNoSePuedeDividirPorUnNumeroMayor ]! !
 
 
-!I class methodsFor: 'error' stamp: 'nn 4/29/2020 12:28:05'!
+!I class methodsFor: 'error' stamp: 'nn 4/29/2020 12:43:05'!
 descripcionDeErrorDeNoSePuedeDividirPorUnNumeroMayor.
-	^ Error signal: 'Error de división'.! !
+	^  'En el dominio de los naturales no se puede divir un número por otro mayor'.! !
 
-!I class methodsFor: 'error' stamp: 'nn 4/29/2020 12:25:02'!
+!I class methodsFor: 'error' stamp: 'nn 4/29/2020 12:42:10'!
 descripcionDeErrorDeNumerosNegativosNoSoportados
 
-	 ^ Error signal: 'Resta inválida'.! !
+	 ^ 'En el dominio de los naturales, no se puede restar un numero a otro que sea mayor o igual a él'.! !
 
 
 !I class methodsFor: 'comparation' stamp: 'rjs 4/28/2020 17:29:54'!
@@ -109,7 +109,7 @@ previous
 	
 	^aNumber resta: self! !
 
-!II class methodsFor: 'operation' stamp: 'rjs 4/28/2020 17:56:41'!
+!II class methodsFor: 'operation' stamp: 'nn 4/29/2020 12:43:22'!
 / aNumber
 
 	aNumber = I
@@ -117,7 +117,7 @@ previous
 	
 	self >= aNumber
 	ifTrue: [ ^ self division: aNumber  ]
-	ifFalse: [^ self descripcionDeErrorDeNoSePuedeDividirPorUnNumeroMayor ]
+	ifFalse: [^ self error: self descripcionDeErrorDeNoSePuedeDividirPorUnNumeroMayor ]
 	! !
 
 

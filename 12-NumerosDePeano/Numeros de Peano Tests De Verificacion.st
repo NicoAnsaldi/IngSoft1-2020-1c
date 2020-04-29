@@ -11,15 +11,15 @@ DenotativeObject subclass: #TestsDeVerificacion
 TestsDeVerificacion class
 	instanceVariableNames: ''!
 
-!TestsDeVerificacion class methodsFor: 'as yet unclassified' stamp: 'nn 4/29/2020 12:26:06'!
+!TestsDeVerificacion class methodsFor: 'as yet unclassified' stamp: 'nn 4/29/2020 12:44:00'!
 m1
 
-	^ 'Resta inválida'! !
+	^ I descripcionDeErrorDeNumerosNegativosNoSoportados ! !
 
-!TestsDeVerificacion class methodsFor: 'as yet unclassified' stamp: 'nn 4/29/2020 12:27:55'!
+!TestsDeVerificacion class methodsFor: 'as yet unclassified' stamp: 'nn 4/29/2020 12:44:11'!
 m2
 
-	^ 'Error de división'.! !
+	^ I descripcionDeErrorDeNoSePuedeDividirPorUnNumeroMayor ! !
 
 !TestsDeVerificacion class methodsFor: 'as yet unclassified' stamp: 'ARM 3/26/2018 12:51:26'!
 test01UnoMasUnSumandoEsElProximoDelSumando
