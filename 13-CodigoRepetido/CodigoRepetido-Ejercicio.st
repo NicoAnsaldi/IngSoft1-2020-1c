@@ -52,10 +52,10 @@ test01AddingCustomerShouldNotTakeMoreThan50Milliseconds
 	
 ! !
 
-!CustomerBookTest methodsFor: 'testing' stamp: 'NR 4/3/2019 10:50:13'!
+!CustomerBookTest methodsFor: 'testing' stamp: 'nn 5/4/2020 13:44:55'!
 test02RemovingCustomerShouldNotTakeMoreThan100Milliseconds
 
-	| customerBook millisecondsBeforeRunning millisecondsAfterRunning paulMcCartney |
+	"| customerBook millisecondsBeforeRunning millisecondsAfterRunning paulMcCartney |
 	
 	customerBook := CustomerBook new.
 	paulMcCartney := 'Paul McCartney'.
@@ -66,7 +66,13 @@ test02RemovingCustomerShouldNotTakeMoreThan100Milliseconds
 	customerBook removeCustomerNamed: paulMcCartney.
 	millisecondsAfterRunning := Time millisecondClockValue * millisecond.
 	
-	self assert: (millisecondsAfterRunning-millisecondsBeforeRunning) < (100 * millisecond)
+	self assert: (millisecondsAfterRunning-millisecondsBeforeRunning) < (100 * millisecond)"
+	
+	|customerBook paulMcCartney|
+	customerBook := CustomerBook new.
+	paulMcCartney := 'Paul McCartney'.
+	customerBook  addCustomerNamed: paulMcCartney.
+	self assert: (self sarasa:[customerBook removeCustomerNamed: paulMcCartney] withTime:100).
 	
 ! !
 
