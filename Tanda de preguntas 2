@@ -1,0 +1,32 @@
+*Self: The Power Of Simplicity
+
+1. Nombre y explique las tres ideas en las que se basa Self.
+
+Las 3 ideas en las que se basa self son: prototipos, slots y comportamiento. Los prototipos que combinan herencia e instansación, 
+
+2. En Self los objetos se crean a partir de:
+
+utilizando cloning 
+
+3. En Self, la noción de Blending state and behavior se refiere a ...
+
+Ninguna de las anteriores
+
+4. Explique (en 3 renglones) cómo es la implementación de Closures en Self.
+
+In Self, objects, closures (blocks) and procedures (methods) have been brought closer together by using slots and inheri- tance to build closures and procedure. in Self, objects that play the role of subroutines and closures (methods and blocks) are protorypes of activation records; they are copied and invoked to run the subroutine or block. So, local variables are allo- cated by reserving slots for them in the prototype activation record.
+
+*Design Principles Behind Smalltalk
+¿Qué modalidad usaron los desarrolladores del proyecto Smalltalk desde el punto de vista de la cátedra?
+
+
+*Blue Book: Capítulos 6, 7, 8
+
+1. select:
+Evalua el colaborador (aBlock) por cada uno de los elementos del receptor (una colección), y devuelve una nueva colección del mismo tipo que el receptor con los elementos que hayan dado verdadero en la evaluación con aBlock.
+
+2. detect:ifAbsent:
+Evalua el colaborador (aBlock) por cada uno de los elementos del receptor (una colección) y devuelve el primer elemento con el cuál aBlock da verdadero. Si no existe ese elemento evalua el segundo colaborador que tiene que ser un bloque que no requiera argumentos.
+
+3. inject:into:
+Evalua el colaborador (binaryBlock) por cada elemento del receptor del mensaje (unaColeccion). binaryBlock tiene 2 argumentos, el primero es el valor de la evalucion anterior del bloque y el segundo es un elemento del receptor. El colaborador thisValue es el primer valor que toma el primer argumento de binaryBlock. El mensaje responde la última valuación del binaryBlock.
