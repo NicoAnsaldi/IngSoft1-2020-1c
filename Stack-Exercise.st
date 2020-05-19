@@ -144,6 +144,100 @@ TestCase subclass: #SentenceFinderByPrefixTest
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
+!SentenceFinderByPrefixTest methodsFor: 'as yet unclassified' stamp: 'rjs 5/18/2020 21:43:02'!
+test01FindDeVaciaDevuelveVacia
+
+	| stack colectionPrueba aux|
+	
+	stack := OOStack new.
+	aux := SentenceFinderByPrefix new.
+	
+	colectionPrueba := aux SentenceFinderByPrefix: stack with: 'Nada'.
+
+	self assert: colectionPrueba isEmpty ! !
+
+!SentenceFinderByPrefixTest methodsFor: 'as yet unclassified' stamp: 'rjs 5/18/2020 21:35:47'!
+test02FindEncuentraElElemento
+
+	| stack colectionPrueba aux |
+	
+	stack := OOStack new.
+	aux := SentenceFinderByPrefix new.
+	stack push: 'Oveja'.
+	stack push: 'Perro'.
+	stack push: 'Ornitorrinco'.
+	stack push: 'Ovejita'.
+	
+	colectionPrueba := aux SentenceFinderByPrefix: stack with: 'Ove'.
+
+	self assert: colectionPrueba isEmpty not.
+	self assert: colectionPrueba size = 2.
+! !
+
+!SentenceFinderByPrefixTest methodsFor: 'as yet unclassified' stamp: 'rjs 5/18/2020 21:36:42'!
+test03FindEsCaseSensitive
+
+	| stack colectionPrueba aux |
+	
+	stack := OOStack new.
+	aux := SentenceFinderByPrefix new.
+	stack push: 'Oveja'.
+	stack push: 'Perro'.
+	stack push: 'Ornitorrinco'.
+	stack push: 'Ovejita'.
+	
+	colectionPrueba := aux SentenceFinderByPrefix: stack with: 'ove'.
+
+	self assert: colectionPrueba isEmpty.
+
+! !
+
+!SentenceFinderByPrefixTest methodsFor: 'as yet unclassified' stamp: 'rjs 5/18/2020 21:38:10'!
+test04LaCatedra
+
+	| stack colectionPrueba aux |
+	
+	stack := OOStack new.
+	aux := SentenceFinderByPrefix new.
+	stack push: 'winter is coming'.
+	stack push: 'winning is everything'.
+	stack push: 'The winds of Winter'.
+	stack push: 'Winter is here'.
+	
+	colectionPrueba := aux SentenceFinderByPrefix: stack with: 'Wint'.
+
+	self assert: colectionPrueba isEmpty not.
+	self assert: colectionPrueba size = 1.
+
+! !
+
+!SentenceFinderByPrefixTest methodsFor: 'as yet unclassified' stamp: 'rjs 5/18/2020 21:55:47'!
+test05HagoFindYSonIguales
+
+	| stack stack2 colectionPrueba aux |
+	
+	stack := OOStack new.
+	stack2 := OOStack new.
+	aux := SentenceFinderByPrefix new.
+	stack push: 'dog'.
+	stack push: 'cat'.
+	stack push: 'chiken'.
+	stack2 push: 'dog'.
+	stack2 push: 'cat'.
+	stack2 push: 'chiken'.
+	
+	colectionPrueba := aux SentenceFinderByPrefix: stack with: 'cat'.
+
+	self assert: colectionPrueba isEmpty not.
+	self assert: (self thisStack: stack isEqualTo: stack2).
+
+! !
+
+!SentenceFinderByPrefixTest methodsFor: 'as yet unclassified' stamp: 'rjs 5/18/2020 21:56:47'!
+thisStack: aStack isEqualTo: otherStack
+	
+	^ 'RINALDIIII '! !
+
 
 !classDefinition: #OOStack category: #'Stack-Exercise'!
 Object subclass: #OOStack
@@ -200,10 +294,10 @@ size
 
 	^elements size.! !
 
-!OOStack methodsFor: 'as yet unclassified' stamp: 'na 5/18/2020 18:48:23'!
+!OOStack methodsFor: 'as yet unclassified' stamp: 'rjs 5/18/2020 21:39:10'!
 state 
 
-	^OOStackStates new: self! !
+	^OOStackState new: self! !
 
 !OOStack methodsFor: 'as yet unclassified' stamp: 'na 5/18/2020 18:57:03'!
 top
@@ -227,47 +321,47 @@ stackEmptyErrorDescription
 	^ 'Stack is empty'! !
 
 
-!classDefinition: #OOStackStates category: #'Stack-Exercise'!
-Object subclass: #OOStackStates
+!classDefinition: #OOStackState category: #'Stack-Exercise'!
+Object subclass: #OOStackState
 	instanceVariableNames: 'stack'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!OOStackStates methodsFor: 'as yet unclassified' stamp: 'na 5/18/2020 19:02:50'!
+!OOStackState methodsFor: 'as yet unclassified' stamp: 'na 5/18/2020 19:02:50'!
 initializeWith: aStack
 	
 	stack := aStack! !
 
-!OOStackStates methodsFor: 'as yet unclassified' stamp: 'na 5/18/2020 18:53:43'!
+!OOStackState methodsFor: 'as yet unclassified' stamp: 'na 5/18/2020 18:53:43'!
 pop
 	
 	^self subclassResponsibility ! !
 
-!OOStackStates methodsFor: 'as yet unclassified' stamp: 'na 5/18/2020 19:02:16'!
+!OOStackState methodsFor: 'as yet unclassified' stamp: 'na 5/18/2020 19:02:16'!
 top
 	
 	^self subclassResponsibility ! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
-!classDefinition: 'OOStackStates class' category: #'Stack-Exercise'!
-OOStackStates class
+!classDefinition: 'OOStackState class' category: #'Stack-Exercise'!
+OOStackState class
 	instanceVariableNames: ''!
 
-!OOStackStates class methodsFor: 'as yet unclassified' stamp: 'na 5/18/2020 19:03:18'!
+!OOStackState class methodsFor: 'as yet unclassified' stamp: 'na 5/18/2020 19:03:18'!
 for: aStack
 
 	^self subclassResponsibility ! !
 
-!OOStackStates class methodsFor: 'as yet unclassified' stamp: 'na 5/18/2020 18:50:38'!
+!OOStackState class methodsFor: 'as yet unclassified' stamp: 'na 5/18/2020 18:50:38'!
 new: aStack
 
 	^(self subclasses detect: [:aStateClass | aStateClass state = aStack isEmpty]) for: aStack! !
 
 
 !classDefinition: #OOStackEmpty category: #'Stack-Exercise'!
-OOStackStates subclass: #OOStackEmpty
+OOStackState subclass: #OOStackEmpty
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -303,7 +397,7 @@ state
 
 
 !classDefinition: #OOStackNotEmpty category: #'Stack-Exercise'!
-OOStackStates subclass: #OOStackNotEmpty
+OOStackState subclass: #OOStackNotEmpty
 	instanceVariableNames: ''
 	classVariableNames: ''
 	poolDictionaries: ''
@@ -342,3 +436,33 @@ Object subclass: #SentenceFinderByPrefix
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
+
+!SentenceFinderByPrefix methodsFor: 'as yet unclassified' stamp: 'rjs 5/18/2020 21:10:08'!
+SentenceFinderByPrefix: stack with: aPrefix
+
+	| newColection newColection2 |
+	
+	newColection := OrderedCollection new.
+
+	[stack isEmpty not ] whileTrue: [ newColection add: stack pop ].
+	
+	newColection2  := newColection select: [:anElement | anElement  beginsWith: aPrefix ].
+	
+	[newColection isEmpty not ] whileTrue: [ stack push: newColection removeLast ].
+	
+	^ newColection2 
+	
+	
+
+! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'SentenceFinderByPrefix class' category: #'Stack-Exercise'!
+SentenceFinderByPrefix class
+	instanceVariableNames: ''!
+
+!SentenceFinderByPrefix class methodsFor: 'as yet unclassified' stamp: 'rjs 5/18/2020 21:18:00'!
+new
+	
+	^ self basicNew ! !
