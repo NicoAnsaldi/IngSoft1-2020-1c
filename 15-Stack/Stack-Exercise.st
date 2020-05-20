@@ -158,62 +158,97 @@ thisStack: aStack isEqualTo: otherStack
 	^bool! !
 
 
-!SentenceFinderByPrefixTest methodsFor: 'testing' stamp: 'na 5/20/2020 18:08:23'!
-test01searchInAnEmptyStackResultInAEmptyCollection
+!SentenceFinderByPrefixTest methodsFor: 'testing' stamp: 'na 5/20/2020 19:22:08'!
+test01thePrefixCantBeEmpty
+
+	|stack|
+	
+	stack := OOStack new.
+	
+	self 
+	should: [SentenceFinderByPrefix in: stack withPrefix: ''] 
+	raise: Error  
+	withExceptionDo: [ :anError | self assert: anError messageText equals: SentenceFinderByPrefix errorPrefixEmpty]! !
+
+!SentenceFinderByPrefixTest methodsFor: 'testing' stamp: 'na 5/20/2020 19:30:26'!
+test02thePrefixCantBeAnEmptySpace
+
+	|stack|
+	
+	stack := OOStack new.
+	
+	self 
+	should: [SentenceFinderByPrefix in: stack withPrefix: ' '] 
+	raise: Error  
+	withExceptionDo: [ :anError | self assert: anError messageText equals: SentenceFinderByPrefix errorPrefixWithSpaces]! !
+
+!SentenceFinderByPrefixTest methodsFor: 'testing' stamp: 'na 5/20/2020 19:30:53'!
+test03thePrefixCantHaveEmptySpaces
+
+	|stack|
+	
+	stack := OOStack new.
+	
+	self 
+	should: [SentenceFinderByPrefix in: stack withPrefix: 'Oveja '] 
+	raise: Error  
+	withExceptionDo: [ :anError | self assert: anError messageText equals: SentenceFinderByPrefix errorPrefixWithSpaces]! !
+
+!SentenceFinderByPrefixTest methodsFor: 'testing' stamp: 'na 5/20/2020 18:58:38'!
+test04searchInAnEmptyStackResultInAEmptyCollection
 
 	| stack collectionResult finder|
 	
 	stack := OOStack new.
-	finder := SentenceFinderByPrefix new.
+	finder := SentenceFinderByPrefix in: stack withPrefix: 'Nada'.
 	
-	collectionResult := finder SentenceFinderByPrefix: stack with: 'Nada'.
+	collectionResult := finder find.
 
 	self assert: collectionResult isEmpty ! !
 
-!SentenceFinderByPrefixTest methodsFor: 'testing' stamp: 'na 5/20/2020 18:07:36'!
-test02searchByPrefixWorksCorrectlyWithOutCaseSensitive
+!SentenceFinderByPrefixTest methodsFor: 'testing' stamp: 'na 5/20/2020 18:58:45'!
+test05searchByPrefixWorksCorrectlyWithOutCaseSensitive
 
 	| stack collectionResult finder |
 	
 	stack := OOStack new.
-	finder := SentenceFinderByPrefix new.
 	stack push: 'Oveja'.
 	stack push: 'Perro'.
 	stack push: 'Ornitorrinco'.
 	stack push: 'Ovejita'.
+	finder := SentenceFinderByPrefix in: stack withPrefix: 'Ove'.
 	
-	collectionResult := finder SentenceFinderByPrefix: stack with: 'Ove'.
+	collectionResult := finder find.
 
 	self assert: collectionResult isEmpty not.
 	self assert: collectionResult size = 2.
 ! !
 
-!SentenceFinderByPrefixTest methodsFor: 'testing' stamp: 'na 5/20/2020 18:06:49'!
-test03searchByPrefixWorksCorrectlyWithCaseSensitive
+!SentenceFinderByPrefixTest methodsFor: 'testing' stamp: 'na 5/20/2020 18:58:51'!
+test06searchByPrefixWorksCorrectlyWithCaseSensitive
 
 	| stack collectionResult finder |
 	
 	stack := OOStack new.
-	finder := SentenceFinderByPrefix new.
 	stack push: 'Oveja'.
 	stack push: 'Perro'.
 	stack push: 'Ornitorrinco'.
 	stack push: 'Ovejita'.
 	
-	collectionResult := finder SentenceFinderByPrefix: stack with: 'ove'.
+	finder := SentenceFinderByPrefix in: stack withPrefix: 'ove'.
+	collectionResult := finder find.
 
 	self assert: collectionResult isEmpty.
 
 ! !
 
-!SentenceFinderByPrefixTest methodsFor: 'testing' stamp: 'na 5/20/2020 18:05:27'!
-test04searchDoesNotModifyTheStack
+!SentenceFinderByPrefixTest methodsFor: 'testing' stamp: 'na 5/20/2020 18:59:00'!
+test07searchDoesNotModifyTheStack
 
 	| stack stack2 collectionResult finder |
 	
 	stack := OOStack new.
 	stack2 := OOStack new.
-	finder := SentenceFinderByPrefix new.
 	stack push: 'dog'.
 	stack push: 'cat'.
 	stack push: 'chiken'.
@@ -221,7 +256,8 @@ test04searchDoesNotModifyTheStack
 	stack2 push: 'cat'.
 	stack2 push: 'chiken'.
 	
-	collectionResult := finder SentenceFinderByPrefix: stack with: 'cat'.
+	finder := SentenceFinderByPrefix in: stack withPrefix: 'cat'.
+	collectionResult := finder find.
 
 	self assert: collectionResult isEmpty not.
 	self assert: (self thisStack: stack isEqualTo: stack2).
@@ -441,29 +477,53 @@ for: aStack
 
 !classDefinition: #SentenceFinderByPrefix category: #'Stack-Exercise'!
 Object subclass: #SentenceFinderByPrefix
-	instanceVariableNames: ''
+	instanceVariableNames: 'stack2 prefix'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Stack-Exercise'!
 
-!SentenceFinderByPrefix methodsFor: 'as yet unclassified' stamp: 'rjs 5/18/2020 21:10:08'!
-SentenceFinderByPrefix: stack with: aPrefix
+!SentenceFinderByPrefix methodsFor: 'finder - auxiliaries' stamp: 'na 5/20/2020 18:56:55'!
+moveTheElementsFromACollectionToTheStack: aCollection.
 
-	| newColection newColection2 |
-	
-	newColection := OrderedCollection new.
+	[aCollection isEmpty not ] whileTrue: [ stack2 push: aCollection removeLast ].! !
 
-	[stack isEmpty not ] whileTrue: [ newColection add: stack pop ].
+!SentenceFinderByPrefix methodsFor: 'finder - auxiliaries' stamp: 'na 5/20/2020 18:49:45'!
+moveTheElementsInTheStackToACollection
 	
-	newColection2  := newColection select: [:anElement | anElement  beginsWith: aPrefix ].
+	|collection|
 	
-	[newColection isEmpty not ] whileTrue: [ stack push: newColection removeLast ].
+	collection := OrderedCollection new.
 	
-	^ newColection2 
+	[stack2 isEmpty not ] whileTrue: [ collection add: stack2 pop ].
+	
+	^collection! !
+
+
+!SentenceFinderByPrefix methodsFor: 'finder' stamp: 'na 5/20/2020 18:57:58'!
+find
+
+	| collectionAux collectionResult |
+	
+	collectionAux := OrderedCollection new.
+
+	collectionAux := self moveTheElementsInTheStackToACollection.
+	
+	collectionResult  := collectionAux select: [:anElement | anElement  beginsWith: prefix ].
+	
+	self moveTheElementsFromACollectionToTheStack: collectionAux .
+	
+	^ collectionResult 
 	
 	
 
 ! !
+
+
+!SentenceFinderByPrefix methodsFor: 'initialization' stamp: 'na 5/20/2020 18:31:41'!
+initializeWith: aStack andAPrefix: aPrefix
+	
+	stack2 := aStack.
+	prefix := aPrefix ! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -471,7 +531,32 @@ SentenceFinderByPrefix: stack with: aPrefix
 SentenceFinderByPrefix class
 	instanceVariableNames: ''!
 
-!SentenceFinderByPrefix class methodsFor: 'as yet unclassified' stamp: 'rjs 5/18/2020 21:18:00'!
-new
+!SentenceFinderByPrefix class methodsFor: 'error' stamp: 'na 5/20/2020 18:36:27'!
+errorPrefixEmpty
+
+	^'El prefijo está vació'! !
+
+!SentenceFinderByPrefix class methodsFor: 'error' stamp: 'na 5/20/2020 18:38:33'!
+errorPrefixWithSpaces
+
+	^'El prefijo tiene espacios'! !
+
+
+!SentenceFinderByPrefix class methodsFor: 'testing' stamp: 'na 5/20/2020 19:32:44'!
+prefixNotEmpty: aPrefix
+
+	(aPrefix = '') ifTrue: [^self error: self errorPrefixEmpty].! !
+
+!SentenceFinderByPrefix class methodsFor: 'testing' stamp: 'na 5/20/2020 19:32:09'!
+prefixWithOutSpaces: aPrefix
+
+	(aPrefix includes: $ ) ifTrue: [^self error: self errorPrefixWithSpaces ].! !
+
+
+!SentenceFinderByPrefix class methodsFor: 'initialization' stamp: 'na 5/20/2020 19:33:11'!
+in: aStack withPrefix: aPrefix
 	
-	^ self basicNew ! !
+	self prefixNotEmpty: aPrefix.
+	self prefixWithOutSpaces: aPrefix.
+	
+	^ self basicNew initializeWith: aStack andAPrefix: aPrefix.! !
