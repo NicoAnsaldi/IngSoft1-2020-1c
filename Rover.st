@@ -5,19 +5,19 @@ TestCase subclass: #TestRobot
 	poolDictionaries: ''
 	category: 'Rover'!
 
-!TestRobot methodsFor: 'tests' stamp: 'rjs 6/4/2020 21:37:10'!
+!TestRobot methodsFor: 'tests' stamp: 'rjs 6/7/2020 12:41:04'!
 test01StringVacio
 	
 	| robot |
 	
 	robot := MarsRobot in: 1@1 with: 'N'.
 	
-	robot send: ' '.
+	robot send: ''.
 	
 	self assert: robot position equals: 1@1.
 	self assert: robot direction equals: 'N'.! !
 
-!TestRobot methodsFor: 'tests' stamp: 'rjs 6/4/2020 21:36:43'!
+!TestRobot methodsFor: 'tests' stamp: 'rjs 6/7/2020 12:38:08'!
 test02MoverHaciaAdelante
 	
 	| robot |
@@ -153,7 +153,7 @@ test10SePuedeGirarHaciaLaIzquierda
 	self assert:  1@1 equals: robot4 position .
 	self assert:  'N' equals: robot4 direction.! !
 
-!TestRobot methodsFor: 'tests' stamp: 'rjs 6/7/2020 12:12:10'!
+!TestRobot methodsFor: 'tests' stamp: 'rjs 6/7/2020 12:39:26'!
 test11CadenaLarga
 	
 	| robot |
@@ -164,6 +164,21 @@ test11CadenaLarga
 	
 	self assert:  0@3 equals: robot position .
 	self assert:  'O' equals: robot direction.! !
+
+!TestRobot methodsFor: 'tests' stamp: 'rjs 6/7/2020 12:42:24'!
+test12CadenaLargaConError
+	
+	| robot |
+	
+	robot := MarsRobot in: 1@1 with: 'N'.
+	
+		self
+		should: [ robot send: 'frblflxrr'. ]
+		raise: Error
+		withMessageText: [	self assert:  0@3 equals: robot position .
+									self assert:  'O' equals: robot direction.
+									MarsRobot marsRobotInvalidComandErrorDescription ]
+! !
 
 
 !classDefinition: #MarsRobot category: #Rover!
@@ -257,34 +272,33 @@ retrodecerMarsRobotWithSouthState
 	position := ((position x) @ (position y + 1))! !
 
 
-!MarsRobot methodsFor: 'as yet unclassified' stamp: 'rjs 6/4/2020 21:34:36'!
+!MarsRobot methodsFor: 'actions' stamp: 'rjs 6/4/2020 21:34:36'!
 direction
 	^ direction! !
 
-!MarsRobot methodsFor: 'as yet unclassified' stamp: 'rjs 6/4/2020 21:04:53'!
+!MarsRobot methodsFor: 'actions' stamp: 'rjs 6/4/2020 21:04:53'!
 initialize: aPosition with: aDirection
 		
 	position := aPosition.
 	direction := aDirection.! !
 
-!MarsRobot methodsFor: 'as yet unclassified' stamp: 'rjs 6/4/2020 21:10:48'!
+!MarsRobot methodsFor: 'actions' stamp: 'rjs 6/4/2020 21:10:48'!
 position
 	
 	^ position! !
 
-!MarsRobot methodsFor: 'as yet unclassified' stamp: 'rjs 6/7/2020 12:28:29'!
+!MarsRobot methodsFor: 'actions' stamp: 'rjs 6/7/2020 12:40:32'!
 procesarComando: aChar
 	
-	(aChar = $ ) ifTrue: [ ^ self  ].
-	(aChar = $f) ifTrue: [ (MarsRobotState stateFor: self) avanzar  ].
-	(aChar = $b) ifTrue: [ (MarsRobotState stateFor: self) retroceder ].
-	(aChar = $r) ifTrue: [ (MarsRobotState stateFor: self) girarADerecha ].
-	(aChar = $l) ifTrue: [ (MarsRobotState stateFor: self) girarAIzquierda  ].
+	(aChar = $f) ifTrue: [ ^ (MarsRobotState stateFor: self) avanzar  ].
+	(aChar = $b) ifTrue: [ ^ (MarsRobotState stateFor: self) retroceder ].
+	(aChar = $r) ifTrue: [ ^ (MarsRobotState stateFor: self) girarADerecha ].
+	(aChar = $l) ifTrue: [ ^(MarsRobotState stateFor: self) girarAIzquierda  ].
 	
 	^ self error: self class marsRobotInvalidComandErrorDescription.
 	! !
 
-!MarsRobot methodsFor: 'as yet unclassified' stamp: 'rjs 6/7/2020 12:23:49'!
+!MarsRobot methodsFor: 'actions' stamp: 'rjs 6/7/2020 12:23:49'!
 send: aString
 
 	aString do: [ :each | self procesarComando: each ].
