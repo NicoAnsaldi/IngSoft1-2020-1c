@@ -5,19 +5,18 @@ TestCase subclass: #TestTerniLapilli
 	poolDictionaries: ''
 	category: 'TerniLapilliExercise'!
 
-!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'rjs 6/13/2020 19:52:10'!
+!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 16:17:10'!
 test01StartsGameWithEmptyBoardAndMovesX
 
 		| juegoNuevo |
 		
 		juegoNuevo := TerniLapilli new.
 		
-		self assert: juegoNuevo playedMarks equals: 0.
 		self assert: juegoNuevo visualizeXMarks equals: OrderedCollection new.
 		self assert: juegoNuevo isPlaying equals: 'X'.
 		self assert: juegoNuevo hasntFinishedYet equals: true.! !
 
-!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'rjs 6/13/2020 19:55:05'!
+!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 12:38:41'!
 test02PlayerXMadeAMove
 
 		| juegoNuevo |
@@ -26,11 +25,10 @@ test02PlayerXMadeAMove
 		juegoNuevo putXat: 1 @ 1.
 		
 		self assert: juegoNuevo hasntFinishedYet equals: true.
-		self assert: 1 equals: juegoNuevo playedMarks.
 		self assert: juegoNuevo visualizeXMarks equals: (OrderedCollection newFrom: {1 @ 1}).
 		self assert: juegoNuevo isPlaying equals: 'O'.! !
 
-!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'rjs 6/13/2020 19:55:37'!
+!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 12:38:48'!
 test03XPlayedNowPlaysO
 	
 		| juegoNuevo |
@@ -40,14 +38,13 @@ test03XPlayedNowPlaysO
 		juegoNuevo putOat: 1 @ 2.
 		
 		self assert: juegoNuevo hasntFinishedYet equals: true.
-		self assert: 2 equals: juegoNuevo playedMarks.
 		self assert: juegoNuevo visualizeXMarks equals: (OrderedCollection newFrom: {1 @ 1}).
 		self assert: juegoNuevo visualizeOMarks equals: (OrderedCollection newFrom: {1 @ 2}).
 		self assert: juegoNuevo isPlaying equals: 'X'.
 ! !
 
-!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'rjs 6/13/2020 19:56:03'!
-test04AMarkCanNotBePutOnThePositionOfAnotherMark
+!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 12:58:03'!
+test04OCanNotPutAMarkInAXMarksPlace
 	
 		| juegoNuevo |
 		
@@ -58,13 +55,12 @@ test04AMarkCanNotBePutOnThePositionOfAnotherMark
 		should: [ juegoNuevo putOat: 1 @ 1. ]
 		raise: Error
 		withMessageText: [	self assert: juegoNuevo hasntFinishedYet equals: true.
-									self assert: 1 equals: juegoNuevo playedMarks.
 									self assert: juegoNuevo visualizeXMarks equals: (OrderedCollection newFrom: {1 @ 1}).
 									self assert: juegoNuevo isPlaying equals: 'O'.
 									TerniLapilli InvalidMarkPlaceErrorDescription ]! !
 
-!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'rjs 6/13/2020 19:56:27'!
-test05AMarkCanNotBePutOnThePositionOfAnotherMark
+!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 12:58:58'!
+test05XCanNotPutAMarkInAOMarksPlace
 	
 		| juegoNuevo |
 		
@@ -76,14 +72,13 @@ test05AMarkCanNotBePutOnThePositionOfAnotherMark
 		should: [ juegoNuevo putXat: 1 @ 2.]
 		raise: Error
 		withMessageText: [	self assert: juegoNuevo hasntFinishedYet equals: true.
-									self assert: 2 equals: juegoNuevo playedMarks.
 									self assert: juegoNuevo visualizeXMarks equals: (OrderedCollection newFrom: {1 @ 1}).
 									self assert: juegoNuevo visualizeOMarks equals: (OrderedCollection newFrom: {1 @ 2}).
 									self assert: juegoNuevo isPlaying equals: 'X'.
 									TerniLapilli InvalidMarkPlaceErrorDescription ]! !
 
-!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'rjs 6/13/2020 19:57:01'!
-test06YCanNotBeGreaterThanValidPositions
+!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 13:06:46'!
+test06CoordinateYCanNotBeGreaterThanValidPositions
 	
 		| juegoNuevo |
 		
@@ -93,13 +88,12 @@ test06YCanNotBeGreaterThanValidPositions
 		should: [ juegoNuevo putXat: 1 @ 10.]
 		raise: Error
 		withMessageText: [	self assert: juegoNuevo hasntFinishedYet equals: true.
-									self assert: 0 equals: juegoNuevo playedMarks.
 									self assert: juegoNuevo visualizeXMarks equals: OrderedCollection new.
 									self assert: juegoNuevo isPlaying equals: 'X'.
 									TerniLapilli InvalidMarkPositionErrorDescription ]! !
 
-!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'rjs 6/13/2020 19:57:11'!
-test07YCanNotBeLowerThanValidPositions
+!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 13:06:56'!
+test07CoordinateYCanNotBeLowerThanValidPositions
 	
 		| juegoNuevo |
 		
@@ -109,13 +103,12 @@ test07YCanNotBeLowerThanValidPositions
 		should: [ juegoNuevo putXat: 1 @ 0.]
 		raise: Error
 		withMessageText: [	self assert: juegoNuevo hasntFinishedYet equals: true.
-									self assert: 0 equals: juegoNuevo playedMarks.
 									self assert: juegoNuevo visualizeXMarks equals: OrderedCollection new.
 									self assert: juegoNuevo isPlaying equals: 'X'.
 									TerniLapilli InvalidMarkPositionErrorDescription ]! !
 
-!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'rjs 6/13/2020 19:57:15'!
-test08XCanNotBeGreaterThanValidPositions
+!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 13:07:06'!
+test08CoordinateXCanNotBeGreaterThanValidPositions
 	
 		| juegoNuevo |
 		
@@ -125,13 +118,12 @@ test08XCanNotBeGreaterThanValidPositions
 		should: [ juegoNuevo putXat: 10 @ 1.]
 		raise: Error
 		withMessageText: [	self assert: juegoNuevo hasntFinishedYet equals: true.
-									self assert: 0 equals: juegoNuevo playedMarks.
 									self assert: juegoNuevo visualizeXMarks equals: OrderedCollection new.
 									self assert: juegoNuevo isPlaying equals: 'X'.
 									TerniLapilli InvalidMarkPositionErrorDescription ]! !
 
-!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'rjs 6/13/2020 19:57:23'!
-test09XCanNotBeLowerThanValidPositions
+!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 13:07:17'!
+test09CoordinateXCanNotBeLowerThanValidPositions
 	
 		| juegoNuevo |
 		
@@ -141,12 +133,11 @@ test09XCanNotBeLowerThanValidPositions
 		should: [ juegoNuevo putXat: 0 @ 1.]
 		raise: Error
 		withMessageText: [	self assert: juegoNuevo hasntFinishedYet equals: true.
-									self assert: 0 equals: juegoNuevo playedMarks.
 									self assert: juegoNuevo visualizeXMarks equals: OrderedCollection new.
 									self assert: juegoNuevo isPlaying equals: 'X'.
 									TerniLapilli InvalidMarkPositionErrorDescription ]! !
 
-!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'rjs 6/13/2020 19:57:46'!
+!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 12:39:48'!
 test10XCanNotPlayTwoTimesInARow
 	
 		| juegoNuevo |
@@ -159,13 +150,31 @@ test10XCanNotPlayTwoTimesInARow
 		should: [ juegoNuevo putXat: 1 @ 2.]
 		raise: Error
 		withMessageText: [	self assert: juegoNuevo hasntFinishedYet equals: true.
-									self assert: 1 equals: juegoNuevo playedMarks.
 									self assert: juegoNuevo visualizeXMarks equals: (OrderedCollection newFrom: {1 @ 1}).
 									self assert: juegoNuevo isPlaying equals: 'O'.
 									TerniLapilli invalidPlayerErrorDescription ]! !
 
-!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'rjs 6/13/2020 19:58:37'!
-test11XCanNotPlayFourNewMarks
+!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 13:09:30'!
+test11OCanNotPlayTwoTimesInARow
+	
+		| juegoNuevo |
+		
+		juegoNuevo := TerniLapilli new.
+		
+		juegoNuevo putXat: 1 @ 1.
+		juegoNuevo putOat: 1 @ 2.
+		
+		self
+		should: [ juegoNuevo putOat: 1 @ 3.]
+		raise: Error
+		withMessageText: [	self assert: juegoNuevo hasntFinishedYet equals: true.
+									self assert: juegoNuevo visualizeXMarks equals: (OrderedCollection newFrom: {1 @ 1}).
+									self assert: juegoNuevo visualizeOMarks equals: (OrderedCollection newFrom: {1 @ 2}).
+									self assert: juegoNuevo isPlaying equals: 'X'.
+									TerniLapilli invalidPlayerErrorDescription ]! !
+
+!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 13:13:17'!
+test12XCanNotPlayFourMarks
 	
 		| juegoNuevo |
 		
@@ -184,14 +193,13 @@ test11XCanNotPlayFourNewMarks
 		should: [ juegoNuevo putXat: 2 @ 2.]
 		raise: Error
 		withMessageText: [	self assert: juegoNuevo hasntFinishedYet equals: true.
-									self assert: 6 equals: juegoNuevo playedMarks.
 									self assert: juegoNuevo visualizeXMarks equals: (OrderedCollection newFrom: {1 @ 1. 1 @ 3. 3 @ 3}).
 									self assert: juegoNuevo visualizeOMarks equals: (OrderedCollection newFrom: {1 @ 2. 3 @ 2. 2 @ 1}).
 									self assert: juegoNuevo isPlaying equals: 'X'.
 									TerniLapilli invalidNumberOfMarksErrorDescription ]! !
 
-!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'rjs 6/13/2020 19:59:08'!
-test12XCanNotMoveAMarkBeforePlacingThree
+!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 13:13:32'!
+test13XCanNotMoveAMarkBeforePlacingThree
 	
 		| juegoNuevo |
 		
@@ -201,13 +209,29 @@ test12XCanNotMoveAMarkBeforePlacingThree
 		should: [ juegoNuevo moveXMarkAt: 1 @ 1 to: 2 @ 2.]
 		raise: Error
 		withMessageText: [	self assert: juegoNuevo hasntFinishedYet equals: true.
-									self assert: 0 equals: juegoNuevo playedMarks.
 									self assert: juegoNuevo visualizeXMarks equals: OrderedCollection new.
 									self assert: juegoNuevo isPlaying equals: 'X'.
 									TerniLapilli invalidLessNumberOfMarksErrorDescription ]! !
 
-!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'rjs 6/13/2020 18:29:55'!
-test13XCanNotMoveAMarkOutOfBoard
+!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 13:15:42'!
+test14OCanNotMoveAMarkBeforePlacingThree
+	
+		| juegoNuevo |
+		
+		juegoNuevo := TerniLapilli new.
+		juegoNuevo putXat: 1 @ 1.
+		
+		self
+		should: [ juegoNuevo moveOMarkAt: 1 @ 2 to: 2 @ 3.]
+		raise: Error
+		withMessageText: [	self assert: juegoNuevo hasntFinishedYet equals: true.
+									self assert: juegoNuevo visualizeXMarks equals: (OrderedCollection newFrom: {1 @ 1}).
+									self assert: juegoNuevo visualizeOMarks equals: OrderedCollection new.
+									self assert: juegoNuevo isPlaying equals: 'O'.
+									TerniLapilli invalidLessNumberOfMarksErrorDescription ]! !
+
+!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 13:21:01'!
+test15XCanNotMoveAMarkOutOfBoard
 	
 		| juegoNuevo |
 		
@@ -224,12 +248,35 @@ test13XCanNotMoveAMarkOutOfBoard
 		should: [ juegoNuevo moveXMarkAt: 1 @ 3 to: 1 @ 4.]
 		raise: Error
 		withMessageText: [	self assert: juegoNuevo hasntFinishedYet equals: true.
-									self assert: 6 equals: juegoNuevo playedMarks.
 									self assert: juegoNuevo isPlaying equals: 'X'.
 									TerniLapilli InvalidMarkPositionErrorDescription ]! !
 
-!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'rjs 6/13/2020 19:59:24'!
-test14XCanNotMoveAMarkMoreThanOnePlace
+!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 13:20:07'!
+test16OCanNotMoveAMarkOutOfBoard
+	
+		| juegoNuevo |
+		
+		juegoNuevo := TerniLapilli new.
+		
+		juegoNuevo putXat: 1 @ 1.
+		juegoNuevo putOat: 1 @ 2.
+		juegoNuevo putXat: 1 @ 3.
+		juegoNuevo putOat: 3 @ 2.
+		juegoNuevo putXat: 3 @ 3.
+		juegoNuevo putOat: 2 @ 1.
+		juegoNuevo moveXMarkAt: 1 @ 1 to: 2 @ 2. 
+		
+		self
+		should: [ juegoNuevo moveOMarkAt: 3 @ 2 to: 4 @ 2.]
+		raise: Error
+		withMessageText: [	self assert: juegoNuevo hasntFinishedYet equals: true.
+									self assert: juegoNuevo visualizeOMarks equals: (OrderedCollection newFrom: {1 @ 2. 3 @ 2. 2 @ 1}).
+									self assert: juegoNuevo visualizeXMarks equals: (OrderedCollection newFrom: {1 @ 3. 3 @ 3. 2 @ 2}). 
+									self assert: juegoNuevo isPlaying equals: 'O'.
+									TerniLapilli InvalidMarkPositionErrorDescription ]! !
+
+!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 14:04:53'!
+test17XCanNotMoveAMarkMoreThanOnePlace
 	
 		| juegoNuevo |
 		
@@ -246,14 +293,37 @@ test14XCanNotMoveAMarkMoreThanOnePlace
 		should: [ juegoNuevo moveXMarkAt: 1 @ 3 to: 3 @ 1.]
 		raise: Error
 		withMessageText: [	self assert: juegoNuevo hasntFinishedYet equals: true.
-									self assert: 6 equals: juegoNuevo playedMarks.
 									self assert: juegoNuevo visualizeXMarks equals: (OrderedCollection newFrom: {1 @ 1. 1 @ 3. 3 @ 3}).
 									self assert: juegoNuevo visualizeOMarks equals: (OrderedCollection newFrom: {1 @ 2. 3 @ 2. 2 @ 1}).
 									self assert: juegoNuevo isPlaying equals: 'X'.
 									TerniLapilli invalidDistanceOfMarksErrorDescription ]! !
 
-!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'rjs 6/13/2020 19:59:29'!
-test15XCanOnlyMoveHisMarks
+!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 15:18:37'!
+test18OCanNotMoveAMarkMoreThanOnePlace
+	
+		| juegoNuevo |
+		
+		juegoNuevo := TerniLapilli new.
+		
+		juegoNuevo putXat: 1 @ 1.
+		juegoNuevo putOat: 1 @ 2.
+		juegoNuevo putXat: 1 @ 3.
+		juegoNuevo putOat: 3 @ 2.
+		juegoNuevo putXat: 3 @ 3.
+		juegoNuevo putOat: 2 @ 1.
+		juegoNuevo moveXMarkAt: 1 @ 1 to: 2 @ 2. 
+		
+		self
+		should: [ juegoNuevo moveOMarkAt: 2 @ 1 to: 2 @ 3.]
+		raise: Error
+		withMessageText: [	self assert: juegoNuevo hasntFinishedYet equals: true.
+									self assert: juegoNuevo visualizeXMarks equals: (OrderedCollection newFrom: {1 @ 3. 3 @ 3. 2 @ 2}).
+									self assert: juegoNuevo visualizeOMarks equals: (OrderedCollection newFrom: {1 @ 2. 3 @ 2. 2 @ 1}).
+									self assert: juegoNuevo isPlaying equals: 'O'.
+									TerniLapilli invalidDistanceOfMarksErrorDescription ]! !
+
+!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 14:06:16'!
+test19XCanOnlyMoveHisMarks
 	
 		| juegoNuevo |
 		
@@ -270,14 +340,13 @@ test15XCanOnlyMoveHisMarks
 		should: [ juegoNuevo moveXMarkAt: 1 @ 2 to: 2 @ 2.]
 		raise: Error
 		withMessageText: [	self assert: juegoNuevo hasntFinishedYet equals: true.
-									self assert: 6 equals: juegoNuevo playedMarks.
 									self assert: juegoNuevo visualizeXMarks equals: (OrderedCollection newFrom: {1 @ 1. 1 @ 3. 3 @ 3}).
 									self assert: juegoNuevo visualizeOMarks equals: (OrderedCollection newFrom: {1 @ 2. 3 @ 2. 2 @ 1}).
 									self assert: juegoNuevo isPlaying equals: 'X'.
 									TerniLapilli MarkMoveErrorDescription ]! !
 
-!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'rjs 6/13/2020 20:09:36'!
-test16XMovedAMark
+!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 15:24:18'!
+test20OCanOnlyMoveHisMarks
 	
 		| juegoNuevo |
 		
@@ -289,18 +358,19 @@ test16XMovedAMark
 		juegoNuevo putOat: 3 @ 2.
 		juegoNuevo putXat: 3 @ 3.
 		juegoNuevo putOat: 2 @ 1.
+		juegoNuevo moveXMarkAt: 1 @ 1 to: 2 @ 2. 
 		
-		juegoNuevo moveXMarkAt: 1 @ 3 to: 2 @ 3.
-		
-		self assert: juegoNuevo hasntFinishedYet equals: true.
-		self assert: 6 equals: juegoNuevo playedMarks.
-		self assert: juegoNuevo visualizeXMarks equals: (OrderedCollection newFrom: {1 @ 1. 3 @ 3. 2 @ 3}).
-		self assert: juegoNuevo visualizeOMarks equals: (OrderedCollection newFrom: {1 @ 2. 3 @ 2. 2 @ 1}).
-		self assert: juegoNuevo isPlaying equals: 'O'.
-		! !
+		self
+		should: [ juegoNuevo moveOMarkAt: 1 @ 3 to: 2 @ 3.]
+		raise: Error
+		withMessageText: [	self assert: juegoNuevo hasntFinishedYet equals: true.
+									self assert: juegoNuevo visualizeXMarks equals: (OrderedCollection newFrom: {1 @ 3. 3 @ 3. 2 @ 2}).
+									self assert: juegoNuevo visualizeOMarks equals: (OrderedCollection newFrom: {1 @ 2. 3 @ 2. 2 @ 1}).
+									self assert: juegoNuevo isPlaying equals: 'O'.
+									TerniLapilli MarkMoveErrorDescription ]! !
 
-!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'rjs 6/13/2020 20:45:04'!
-test17XCanNotMoveAtOsTurn
+!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 16:26:38'!
+test21XCanMoveOnlyInHisTurn
 	
 		| juegoNuevo |
 		
@@ -316,11 +386,76 @@ test17XCanNotMoveAtOsTurn
 		should: [ juegoNuevo moveXMarkAt: 1 @ 3 to: 2 @ 3. ]
 		raise: Error
 		withMessageText: [ 	self assert: juegoNuevo hasntFinishedYet equals: true.
-									self assert: 5 equals: juegoNuevo playedMarks.
 									self assert: juegoNuevo visualizeXMarks equals: (OrderedCollection newFrom: {1 @ 1. 1 @ 3. 3 @ 3}).
 									self assert: juegoNuevo visualizeOMarks equals: (OrderedCollection newFrom: {1 @ 2. 3 @ 2.}).
 									self assert: juegoNuevo isPlaying equals: 'O'.
 									TerniLapilli invalidPlayerErrorDescription ]! !
+
+!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 16:26:57'!
+test22OCanMoveOnlyInHisTurn
+	
+		| juegoNuevo |
+		
+		juegoNuevo := TerniLapilli new.
+		
+		juegoNuevo putXat: 1 @ 1.
+		juegoNuevo putOat: 1 @ 2.
+		juegoNuevo putXat: 1 @ 3.
+		juegoNuevo putOat: 3 @ 2.
+		juegoNuevo putXat: 3 @ 3.
+		juegoNuevo putOat: 2 @ 1.
+		
+		self
+		should: [ juegoNuevo moveOMarkAt: 2 @ 1 to: 2 @ 2. ]
+		raise: Error
+		withMessageText: [ 	self assert: juegoNuevo hasntFinishedYet equals: true.
+									self assert: juegoNuevo visualizeXMarks equals: (OrderedCollection newFrom: {1 @ 1. 1 @ 3. 3 @ 3}).
+									self assert: juegoNuevo visualizeOMarks equals: (OrderedCollection newFrom: {1 @ 2. 3 @ 2. 2 @ 1}).
+									self assert: juegoNuevo isPlaying equals: 'X'.
+									TerniLapilli invalidPlayerErrorDescription ]! !
+
+!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 15:36:48'!
+test23XCanMovedOneOfHisMarks
+	
+		| juegoNuevo |
+		
+		juegoNuevo := TerniLapilli new.
+		
+		juegoNuevo putXat: 1 @ 1.
+		juegoNuevo putOat: 1 @ 2.
+		juegoNuevo putXat: 1 @ 3.
+		juegoNuevo putOat: 3 @ 2.
+		juegoNuevo putXat: 3 @ 3.
+		juegoNuevo putOat: 2 @ 1.
+		
+		juegoNuevo moveXMarkAt: 1 @ 3 to: 2 @ 3.
+		
+		self assert: juegoNuevo hasntFinishedYet equals: true.
+		self assert: juegoNuevo visualizeXMarks equals: (OrderedCollection newFrom: {1 @ 1. 3 @ 3. 2 @ 3}).
+		self assert: juegoNuevo visualizeOMarks equals: (OrderedCollection newFrom: {1 @ 2. 3 @ 2. 2 @ 1}).
+		self assert: juegoNuevo isPlaying equals: 'O'.
+		! !
+
+!TestTerniLapilli methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 16:08:17'!
+test24OCanMovedOneOfHisMarks
+	
+		| juegoNuevo |
+		
+		juegoNuevo := TerniLapilli new.
+		
+		juegoNuevo putXat: 1 @ 1.
+		juegoNuevo putOat: 1 @ 2.
+		juegoNuevo putXat: 1 @ 3.
+		juegoNuevo putOat: 3 @ 2.
+		juegoNuevo putXat: 3 @ 3.
+		juegoNuevo putOat: 2 @ 1.
+		juegoNuevo moveXMarkAt: 1 @ 3 to: 2 @ 3.
+		juegoNuevo moveOMarkAt: 2 @ 1 to: 2 @ 2. 
+		
+		self assert: juegoNuevo hasntFinishedYet equals: true.
+		self assert: juegoNuevo visualizeXMarks equals: (OrderedCollection newFrom: {1 @ 1. 3 @ 3. 2 @ 3}).
+		self assert: juegoNuevo visualizeOMarks equals: (OrderedCollection newFrom: {1 @ 2. 3 @ 2. 2 @ 2}).
+		self assert: juegoNuevo isPlaying equals: 'X'.! !
 
 
 !classDefinition: #TerniLapilli category: #TerniLapilliExercise!
@@ -330,22 +465,22 @@ Object subclass: #TerniLapilli
 	poolDictionaries: ''
 	category: 'TerniLapilliExercise'!
 
-!TerniLapilli methodsFor: 'put' stamp: 'rjs 6/12/2020 19:18:54'!
+!TerniLapilli methodsFor: 'put' stamp: 'na 6/15/2020 12:18:07'!
 addMarkFromPlayerOAt: aPosition
 
 	Omarks add: aPosition.
-	playerTurn := PlayingX new: self.! !
+	playerTurn := PuttingX new: self.
+	Omarks size = 3 ifTrue: [playerTurn := MovingX new: self]! !
 
-!TerniLapilli methodsFor: 'put' stamp: 'rjs 6/12/2020 19:23:42'!
+!TerniLapilli methodsFor: 'put' stamp: 'na 6/15/2020 12:15:46'!
 addMarkFromPlayerXAt: aPosition
 
 	Xmarks add: aPosition.
-	playerTurn := PlayingO new: self.! !
+	playerTurn := PuttingO new: self.! !
 
-!TerniLapilli methodsFor: 'put' stamp: 'rjs 6/12/2020 19:10:30'!
+!TerniLapilli methodsFor: 'put' stamp: 'na 6/15/2020 12:32:26'!
 putOat: aPosition
 
-	self checkIfMaxMarksIsReached: Omarks.
 	self checkIfItIsAValidPosition: aPosition.
 	^ playerTurn putOat: aPosition
 	
@@ -353,36 +488,31 @@ putOat: aPosition
 
 	! !
 
-!TerniLapilli methodsFor: 'put' stamp: 'rjs 6/12/2020 19:13:35'!
+!TerniLapilli methodsFor: 'put' stamp: 'na 6/15/2020 12:32:32'!
 putXat: aPosition
 
-	self checkIfMaxMarksIsReached: Xmarks.
 	self checkIfItIsAValidPosition: aPosition.
 	^ playerTurn putXat: aPosition! !
 
 
-!TerniLapilli methodsFor: 'as yet unclassified' stamp: 'rjs 6/13/2020 20:44:05'!
+!TerniLapilli methodsFor: 'move' stamp: 'na 6/15/2020 12:36:59'!
 moveMark: aMark FromPlayerOAt: aPosition
 
-	self checkIfIsPosibleToMoveNow: Omarks.
-	
-	Omarks remove: aMark ifAbsent: [^self error: self class MarkMoveErrorDescription].
-	
+	(Omarks includes: aMark) ifFalse: [^self error: self class MarkMoveErrorDescription].
+	Omarks remove: aMark.
 	Omarks add: aPosition.
-	playerTurn := PlayingX new: self.
+	playerTurn := MovingX new: self.
 ! !
 
-!TerniLapilli methodsFor: 'as yet unclassified' stamp: 'rjs 6/13/2020 20:31:12'!
+!TerniLapilli methodsFor: 'move' stamp: 'na 6/15/2020 12:37:06'!
 moveMark: aMark FromPlayerXAt: aPosition
 
-	self checkIfIsPosibleToMoveNow: Xmarks.
-
-	Xmarks remove: aMark ifAbsent: [^self error: self class MarkMoveErrorDescription].
-	
+	(Xmarks includes: aMark) ifFalse: [^self error: self class MarkMoveErrorDescription].
+	Xmarks remove: aMark.
 	Xmarks add: aPosition.
-	playerTurn := PlayingO new: self.! !
+	playerTurn := MovingO new: self.! !
 
-!TerniLapilli methodsFor: 'as yet unclassified' stamp: 'rjs 6/13/2020 20:30:27'!
+!TerniLapilli methodsFor: 'move' stamp: 'na 6/15/2020 12:36:50'!
 moveOMarkAt: aMark to: aPosition
 
 	self checkIfItIsAValidPosition: aPosition.
@@ -392,7 +522,7 @@ moveOMarkAt: aMark to: aPosition
 
 ! !
 
-!TerniLapilli methodsFor: 'as yet unclassified' stamp: 'rjs 6/13/2020 20:31:04'!
+!TerniLapilli methodsFor: 'move' stamp: 'na 6/15/2020 12:30:36'!
 moveXMarkAt: aMark to: aPosition
 
 	self checkIfItIsAValidPosition: aPosition.
@@ -409,24 +539,6 @@ hasntFinishedYet
 isPlaying
 	^ playerTurn whoIsPlaying! !
 
-!TerniLapilli methodsFor: 'visualice' stamp: 'rjs 6/12/2020 18:23:18'!
-playedMarks
-	
-	^ Omarks size + Xmarks size
-	! !
-
-!TerniLapilli methodsFor: 'visualice' stamp: 'rjs 6/12/2020 18:20:01'!
-playedOMarks
-	
-	^ Omarks size
-	! !
-
-!TerniLapilli methodsFor: 'visualice' stamp: 'rjs 6/12/2020 18:19:55'!
-playedXMarks
-	
-	^ Xmarks size
-	! !
-
 !TerniLapilli methodsFor: 'visualice' stamp: 'rjs 6/13/2020 19:51:50'!
 visualizeOMarks
 	
@@ -440,13 +552,6 @@ visualizeXMarks
 	! !
 
 
-!TerniLapilli methodsFor: 'asserts' stamp: 'rjs 6/13/2020 20:05:50'!
-checkIfIsPosibleToMoveNow: aCollection
-
-	(aCollection size < 3) ifTrue: [^ self error: self class invalidLessNumberOfMarksErrorDescription ].
-	
-	^ true! !
-
 !TerniLapilli methodsFor: 'asserts' stamp: 'rjs 6/13/2020 18:52:26'!
 checkIfItIsAValidPosition: aPosition
 
@@ -456,13 +561,6 @@ checkIfItIsAValidPosition: aPosition
 	((Omarks includes: aPosition) or: [Xmarks includes: aPosition]) ifTrue: [^ self error: self class InvalidMarkPlaceErrorDescription].
 	
 	^ true! !
-
-!TerniLapilli methodsFor: 'asserts' stamp: 'rjs 6/12/2020 19:03:47'!
-checkIfMaxMarksIsReached: aCollection
-
-	aCollection size = 3 ifTrue:[^ self error: self class invalidNumberOfMarksErrorDescription]
-	
-		! !
 
 !TerniLapilli methodsFor: 'asserts' stamp: 'rjs 6/13/2020 20:07:56'!
 checkIfThisPosition: aPosition isAdyacentToThisMark: aMark
@@ -475,12 +573,12 @@ checkIfThisPosition: aPosition isAdyacentToThisMark: aMark
 	^ true! !
 
 
-!TerniLapilli methodsFor: 'inicialization' stamp: 'rjs 6/12/2020 19:26:44'!
+!TerniLapilli methodsFor: 'inicialization' stamp: 'na 6/15/2020 12:15:03'!
 initialize
 
 	Xmarks := OrderedCollection new.
 	Omarks := OrderedCollection new.
-	playerTurn := PlayingX new: self.! !
+	playerTurn := PuttingX new: self.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -562,24 +660,9 @@ TerniLapilliState subclass: #PlayingO
 	poolDictionaries: ''
 	category: 'TerniLapilliExercise'!
 
-!PlayingO methodsFor: 'as yet unclassified' stamp: 'rjs 6/13/2020 20:22:26'!
-moveOMarkAt: aMark to: aPosition
-	terniLapilli moveMark: aMark FromPlayerOAt: aPosition! !
-
-!PlayingO methodsFor: 'as yet unclassified' stamp: 'rjs 6/13/2020 20:23:18'!
-moveXMarkAt: aMark to: aPosition
-	^ terniLapilli error: terniLapilli class invalidPlayerErrorDescription .! !
-
-!PlayingO methodsFor: 'as yet unclassified' stamp: 'rjs 6/12/2020 19:09:30'!
-putOat: aPosition
-	terniLapilli addMarkFromPlayerOAt: aPosition! !
-
-!PlayingO methodsFor: 'as yet unclassified' stamp: 'rjs 6/12/2020 19:28:52'!
-putXat: aPosition
-	 ^ terniLapilli error: terniLapilli class invalidPlayerErrorDescription .! !
-
-!PlayingO methodsFor: 'as yet unclassified' stamp: 'rjs 6/12/2020 19:21:36'!
+!PlayingO methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 12:35:16'!
 whoIsPlaying
+	
 	^ 'O'! !
 
 
@@ -590,6 +673,26 @@ PlayingO subclass: #MovingO
 	poolDictionaries: ''
 	category: 'TerniLapilliExercise'!
 
+!MovingO methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 12:34:38'!
+moveOMarkAt: aMark to: aPosition
+	
+	terniLapilli moveMark: aMark FromPlayerOAt: aPosition! !
+
+!MovingO methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 12:34:33'!
+moveXMarkAt: aMark to: aPosition
+	
+	^ terniLapilli error: terniLapilli class invalidPlayerErrorDescription.! !
+
+!MovingO methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 11:50:15'!
+putOat: aPosition
+
+	^terniLapilli error: terniLapilli class invalidNumberOfMarksErrorDescription! !
+
+!MovingO methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 11:55:41'!
+putXat: aPosition
+	
+	^terniLapilli error: terniLapilli class invalidPlayerErrorDescription! !
+
 
 !classDefinition: #PuttingO category: #TerniLapilliExercise!
 PlayingO subclass: #PuttingO
@@ -597,6 +700,26 @@ PlayingO subclass: #PuttingO
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TerniLapilliExercise'!
+
+!PuttingO methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 12:01:47'!
+moveOMarkAt: aMark to: aPosition
+	
+	^ terniLapilli error: terniLapilli class invalidLessNumberOfMarksErrorDescription! !
+
+!PuttingO methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 12:34:54'!
+moveXMarkAt: aMark to: aPosition
+	 
+	^ terniLapilli error: terniLapilli class invalidPlayerErrorDescription.! !
+
+!PuttingO methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 12:35:01'!
+putOat: aPosition
+	
+	terniLapilli addMarkFromPlayerOAt: aPosition! !
+
+!PuttingO methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 12:35:05'!
+putXat: aPosition
+	 
+	^ terniLapilli error: terniLapilli class invalidPlayerErrorDescription .! !
 
 
 !classDefinition: #PlayingX category: #TerniLapilliExercise!
@@ -606,24 +729,9 @@ TerniLapilliState subclass: #PlayingX
 	poolDictionaries: ''
 	category: 'TerniLapilliExercise'!
 
-!PlayingX methodsFor: 'as yet unclassified' stamp: 'rjs 6/13/2020 20:23:25'!
-moveOMarkAt: aMark to: aPosition
-	^ terniLapilli error: terniLapilli class invalidPlayerErrorDescription .! !
-
-!PlayingX methodsFor: 'as yet unclassified' stamp: 'rjs 6/13/2020 20:23:03'!
-moveXMarkAt: aMark to: aPosition
-	terniLapilli moveMark: aMark FromPlayerXAt: aPosition! !
-
-!PlayingX methodsFor: 'as yet unclassified' stamp: 'rjs 6/12/2020 19:28:43'!
-putOat: aPosition
-	 ^ terniLapilli error: terniLapilli class invalidPlayerErrorDescription .! !
-
-!PlayingX methodsFor: 'as yet unclassified' stamp: 'rjs 6/12/2020 19:07:13'!
-putXat: aPosition
-	terniLapilli addMarkFromPlayerXAt: aPosition! !
-
-!PlayingX methodsFor: 'as yet unclassified' stamp: 'rjs 6/12/2020 19:21:44'!
+!PlayingX methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 12:35:22'!
 whoIsPlaying
+	
 	^ 'X'! !
 
 
@@ -634,6 +742,26 @@ PlayingX subclass: #MovingX
 	poolDictionaries: ''
 	category: 'TerniLapilliExercise'!
 
+!MovingX methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 12:35:28'!
+moveOMarkAt: aMark to: aPosition
+	
+	^ terniLapilli error: terniLapilli class invalidPlayerErrorDescription .! !
+
+!MovingX methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 12:35:33'!
+moveXMarkAt: aMark to: aPosition
+	
+	terniLapilli moveMark: aMark FromPlayerXAt: aPosition! !
+
+!MovingX methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 12:35:37'!
+putOat: aPosition
+	 
+	^ terniLapilli error: terniLapilli class invalidPlayerErrorDescription .! !
+
+!MovingX methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 12:35:43'!
+putXat: aPosition
+	
+	^ terniLapilli error: terniLapilli class invalidNumberOfMarksErrorDescription! !
+
 
 !classDefinition: #PuttingX category: #TerniLapilliExercise!
 PlayingX subclass: #PuttingX
@@ -641,3 +769,23 @@ PlayingX subclass: #PuttingX
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TerniLapilliExercise'!
+
+!PuttingX methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 12:36:28'!
+moveOMarkAt: aMark to: aPosition
+	
+	^ terniLapilli error: terniLapilli class invalidPlayerErrorDescription .! !
+
+!PuttingX methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 12:36:24'!
+moveXMarkAt: aMark to: aPosition
+	
+	^ terniLapilli error: terniLapilli class invalidLessNumberOfMarksErrorDescription! !
+
+!PuttingX methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 12:36:18'!
+putOat: aPosition
+	 
+	^ terniLapilli error: terniLapilli class invalidPlayerErrorDescription .! !
+
+!PuttingX methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 12:05:14'!
+putXat: aPosition
+	
+	terniLapilli addMarkFromPlayerXAt: aPosition! !
