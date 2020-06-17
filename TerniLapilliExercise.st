@@ -1068,18 +1068,19 @@ new
 
 !classDefinition: #TerniLapilliState category: #TerniLapilliExercise!
 Object subclass: #TerniLapilliState
-	instanceVariableNames: 'terniLapilli'
+	instanceVariableNames: 'game'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TerniLapilliExercise'!
 
-!TerniLapilliState methodsFor: 'as yet unclassified' stamp: 'rjs 6/12/2020 19:26:00'!
-initialize: aTerniLapilli.
+!TerniLapilliState methodsFor: 'as yet unclassified' stamp: 'na 6/17/2020 20:21:07'!
+initializeFor: aTerniLapilli.
 	 
-	terniLapilli := aTerniLapilli.! !
+	game := aTerniLapilli.! !
 
-!TerniLapilliState methodsFor: 'as yet unclassified' stamp: 'rjs 6/12/2020 19:21:19'!
+!TerniLapilliState methodsFor: 'as yet unclassified' stamp: 'na 6/17/2020 20:26:48'!
 whoIsPlaying
+	
 	^ self subclassResponsibility ! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
@@ -1088,9 +1089,15 @@ whoIsPlaying
 TerniLapilliState class
 	instanceVariableNames: ''!
 
-!TerniLapilliState class methodsFor: 'as yet unclassified' stamp: 'rjs 6/12/2020 19:07:48'!
-new: aTerniLapilli
-	^ self basicNew initialize: aTerniLapilli.! !
+!TerniLapilliState class methodsFor: 'as yet unclassified' stamp: 'na 6/17/2020 20:25:48'!
+for: aTerniLapilli
+
+	^(self allSubclasses detect: [:aState | aState isFor: aTerniLapilli]) new initializeFor: aTerniLapilli. ! !
+
+!TerniLapilliState class methodsFor: 'as yet unclassified' stamp: 'na 6/17/2020 20:26:36'!
+isFor: aTernilaPilli
+
+	^self subclassResponsibility! !
 
 
 !classDefinition: #GameOver category: #TerniLapilliExercise!
@@ -1105,30 +1112,41 @@ hasntFinishedYet
 
 	^false.! !
 
-!GameOver methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 20:22:46'!
+!GameOver methodsFor: 'as yet unclassified' stamp: 'na 6/17/2020 20:21:07'!
 moveOMarkAt: aMark to: aPosition
 	
-	^ terniLapilli error: terniLapilli class gameOverErrorDescription.! !
+	^ game error: game class gameOverErrorDescription.! !
 
-!GameOver methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 20:23:20'!
+!GameOver methodsFor: 'as yet unclassified' stamp: 'na 6/17/2020 20:21:07'!
 moveXMarkAt: aMark to: aPosition
 	
-	^ terniLapilli error: terniLapilli class gameOverErrorDescription.! !
+	^ game error: game class gameOverErrorDescription.! !
 
-!GameOver methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 20:23:24'!
+!GameOver methodsFor: 'as yet unclassified' stamp: 'na 6/17/2020 20:21:07'!
 putOat: aPosition
 
-	^ terniLapilli error: terniLapilli class gameOverErrorDescription.! !
+	^ game error: game class gameOverErrorDescription.! !
 
-!GameOver methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 20:23:30'!
+!GameOver methodsFor: 'as yet unclassified' stamp: 'na 6/17/2020 20:21:07'!
 putXat: aPosition
 	
-	^ terniLapilli error: terniLapilli class gameOverErrorDescription.! !
+	^ game error: game class gameOverErrorDescription.! !
 
-!GameOver methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 20:38:13'!
+!GameOver methodsFor: 'as yet unclassified' stamp: 'na 6/17/2020 20:21:07'!
 whoIsPlaying
 
-	^terniLapilli error: terniLapilli class gameOverErrorDescription ! !
+	^game error: game class gameOverErrorDescription ! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'GameOver class' category: #TerniLapilliExercise!
+GameOver class
+	instanceVariableNames: ''!
+
+!GameOver class methodsFor: 'as yet unclassified' stamp: 'na 6/17/2020 20:30:01'!
+isFor: aTerniliLapilli
+
+	^aTerniliLapilli hasPlayerXWon or: [aTerniliLapilli hasPlayerOWon].! !
 
 
 !classDefinition: #PlayingO category: #TerniLapilliExercise!
@@ -1148,6 +1166,17 @@ whoIsPlaying
 	
 	^ 'O'! !
 
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'PlayingO class' category: #TerniLapilliExercise!
+PlayingO class
+	instanceVariableNames: ''!
+
+!PlayingO class methodsFor: 'as yet unclassified' stamp: 'na 6/17/2020 20:30:27'!
+isFor: aTerniLapilli
+
+	^false! !
+
 
 !classDefinition: #MovingO category: #TerniLapilliExercise!
 PlayingO subclass: #MovingO
@@ -1156,25 +1185,25 @@ PlayingO subclass: #MovingO
 	poolDictionaries: ''
 	category: 'TerniLapilliExercise'!
 
-!MovingO methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 12:34:38'!
+!MovingO methodsFor: 'as yet unclassified' stamp: 'na 6/17/2020 20:21:07'!
 moveOMarkAt: aMark to: aPosition
 	
-	terniLapilli moveMark: aMark FromPlayerOAt: aPosition! !
+	game moveMark: aMark FromPlayerOAt: aPosition! !
 
-!MovingO methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 12:34:33'!
+!MovingO methodsFor: 'as yet unclassified' stamp: 'na 6/17/2020 20:21:07'!
 moveXMarkAt: aMark to: aPosition
 	
-	^ terniLapilli error: terniLapilli class invalidPlayerErrorDescription.! !
+	^ game error: game class invalidPlayerErrorDescription.! !
 
-!MovingO methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 11:50:15'!
+!MovingO methodsFor: 'as yet unclassified' stamp: 'na 6/17/2020 20:21:07'!
 putOat: aPosition
 
-	^terniLapilli error: terniLapilli class invalidNumberOfMarksErrorDescription! !
+	^game error: game class invalidNumberOfMarksErrorDescription! !
 
-!MovingO methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 11:55:41'!
+!MovingO methodsFor: 'as yet unclassified' stamp: 'na 6/17/2020 20:21:07'!
 putXat: aPosition
 	
-	^terniLapilli error: terniLapilli class invalidPlayerErrorDescription! !
+	^game error: game class invalidPlayerErrorDescription! !
 
 
 !classDefinition: #PuttingO category: #TerniLapilliExercise!
@@ -1184,25 +1213,25 @@ PlayingO subclass: #PuttingO
 	poolDictionaries: ''
 	category: 'TerniLapilliExercise'!
 
-!PuttingO methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 12:01:47'!
+!PuttingO methodsFor: 'as yet unclassified' stamp: 'na 6/17/2020 20:21:07'!
 moveOMarkAt: aMark to: aPosition
 	
-	^ terniLapilli error: terniLapilli class invalidLessNumberOfMarksErrorDescription! !
+	^ game error: game class invalidLessNumberOfMarksErrorDescription! !
 
-!PuttingO methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 12:34:54'!
+!PuttingO methodsFor: 'as yet unclassified' stamp: 'na 6/17/2020 20:21:07'!
 moveXMarkAt: aMark to: aPosition
 	 
-	^ terniLapilli error: terniLapilli class invalidPlayerErrorDescription.! !
+	^ game error: game class invalidPlayerErrorDescription.! !
 
-!PuttingO methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 12:35:01'!
+!PuttingO methodsFor: 'as yet unclassified' stamp: 'na 6/17/2020 20:21:07'!
 putOat: aPosition
 	
-	terniLapilli addMarkFromPlayerOAt: aPosition! !
+	game addMarkFromPlayerOAt: aPosition! !
 
-!PuttingO methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 12:35:05'!
+!PuttingO methodsFor: 'as yet unclassified' stamp: 'na 6/17/2020 20:21:07'!
 putXat: aPosition
 	 
-	^ terniLapilli error: terniLapilli class invalidPlayerErrorDescription .! !
+	^ game error: game class invalidPlayerErrorDescription .! !
 
 
 !classDefinition: #PlayingX category: #TerniLapilliExercise!
@@ -1222,6 +1251,17 @@ whoIsPlaying
 	
 	^ 'X'! !
 
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'PlayingX class' category: #TerniLapilliExercise!
+PlayingX class
+	instanceVariableNames: ''!
+
+!PlayingX class methodsFor: 'as yet unclassified' stamp: 'na 6/17/2020 20:30:43'!
+isFor: aTerniLapilli
+
+	^false! !
+
 
 !classDefinition: #MovingX category: #TerniLapilliExercise!
 PlayingX subclass: #MovingX
@@ -1230,25 +1270,25 @@ PlayingX subclass: #MovingX
 	poolDictionaries: ''
 	category: 'TerniLapilliExercise'!
 
-!MovingX methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 12:35:28'!
+!MovingX methodsFor: 'as yet unclassified' stamp: 'na 6/17/2020 20:21:07'!
 moveOMarkAt: aMark to: aPosition
 	
-	^ terniLapilli error: terniLapilli class invalidPlayerErrorDescription .! !
+	^ game error: game class invalidPlayerErrorDescription .! !
 
-!MovingX methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 12:35:33'!
+!MovingX methodsFor: 'as yet unclassified' stamp: 'na 6/17/2020 20:21:07'!
 moveXMarkAt: aMark to: aPosition
 	
-	terniLapilli moveMark: aMark FromPlayerXAt: aPosition! !
+	game moveMark: aMark FromPlayerXAt: aPosition! !
 
-!MovingX methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 12:35:37'!
+!MovingX methodsFor: 'as yet unclassified' stamp: 'na 6/17/2020 20:21:07'!
 putOat: aPosition
 	 
-	^ terniLapilli error: terniLapilli class invalidPlayerErrorDescription .! !
+	^ game error: game class invalidPlayerErrorDescription .! !
 
-!MovingX methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 12:35:43'!
+!MovingX methodsFor: 'as yet unclassified' stamp: 'na 6/17/2020 20:21:07'!
 putXat: aPosition
 	
-	^ terniLapilli error: terniLapilli class invalidNumberOfMarksErrorDescription! !
+	^ game error: game class invalidNumberOfMarksErrorDescription! !
 
 
 !classDefinition: #PuttingX category: #TerniLapilliExercise!
@@ -1258,22 +1298,22 @@ PlayingX subclass: #PuttingX
 	poolDictionaries: ''
 	category: 'TerniLapilliExercise'!
 
-!PuttingX methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 12:36:28'!
+!PuttingX methodsFor: 'as yet unclassified' stamp: 'na 6/17/2020 20:21:07'!
 moveOMarkAt: aMark to: aPosition
 	
-	^ terniLapilli error: terniLapilli class invalidPlayerErrorDescription .! !
+	^ game error: game class invalidPlayerErrorDescription .! !
 
-!PuttingX methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 12:36:24'!
+!PuttingX methodsFor: 'as yet unclassified' stamp: 'na 6/17/2020 20:21:07'!
 moveXMarkAt: aMark to: aPosition
 	
-	^ terniLapilli error: terniLapilli class invalidLessNumberOfMarksErrorDescription! !
+	^ game error: game class invalidLessNumberOfMarksErrorDescription! !
 
-!PuttingX methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 12:36:18'!
+!PuttingX methodsFor: 'as yet unclassified' stamp: 'na 6/17/2020 20:21:07'!
 putOat: aPosition
 	 
-	^ terniLapilli error: terniLapilli class invalidPlayerErrorDescription .! !
+	^ game error: game class invalidPlayerErrorDescription .! !
 
-!PuttingX methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 12:05:14'!
+!PuttingX methodsFor: 'as yet unclassified' stamp: 'na 6/17/2020 20:21:07'!
 putXat: aPosition
 	
-	terniLapilli addMarkFromPlayerXAt: aPosition! !
+	game addMarkFromPlayerXAt: aPosition! !
