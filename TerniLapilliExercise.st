@@ -842,91 +842,87 @@ test42OCanNotMoveAMarkIfXHasWon
 
 !classDefinition: #TerniLapilli category: #TerniLapilliExercise!
 Object subclass: #TerniLapilli
-	instanceVariableNames: 'Xmarks Omarks playerTurn hasPlayerXWon hasPlayerOWon'
+	instanceVariableNames: 'Xmarks Omarks hasPlayerXWon hasPlayerOWon state'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TerniLapilliExercise'!
 
-!TerniLapilli methodsFor: 'put' stamp: 'na 6/17/2020 14:49:00'!
+!TerniLapilli methodsFor: 'put' stamp: 'na 6/18/2020 00:33:59'!
 addMarkFromPlayerOAt: aPosition
 
 	Omarks add: aPosition.
-	playerTurn := PuttingX new: self.
-	Omarks size = 3 ifTrue: [playerTurn := MovingX new: self].
-	(self hasThisActionWon: Omarks) ifTrue: [playerTurn := GameOver new:self. hasPlayerOWon := true].
+	state := TerniLapilliState for: self.
 	
 	! !
 
-!TerniLapilli methodsFor: 'put' stamp: 'na 6/17/2020 14:35:33'!
+!TerniLapilli methodsFor: 'put' stamp: 'na 6/18/2020 00:34:04'!
 addMarkFromPlayerXAt: aPosition
 
 	Xmarks add: aPosition.
-	playerTurn := PuttingO new: self.
-	(self hasThisActionWon: Xmarks) ifTrue:[playerTurn := GameOver new:self. hasPlayerXWon := true].! !
+	state := TerniLapilliState for: self.! !
 
-!TerniLapilli methodsFor: 'put' stamp: 'na 6/15/2020 12:32:26'!
+!TerniLapilli methodsFor: 'put' stamp: 'na 6/18/2020 00:46:09'!
 putOat: aPosition
 
 	self checkIfItIsAValidPosition: aPosition.
-	^ playerTurn putOat: aPosition
+	^ state putOat: aPosition
 	
 	
 
 	! !
 
-!TerniLapilli methodsFor: 'put' stamp: 'na 6/15/2020 12:32:32'!
+!TerniLapilli methodsFor: 'put' stamp: 'na 6/18/2020 00:46:01'!
 putXat: aPosition
 
 	self checkIfItIsAValidPosition: aPosition.
-	^ playerTurn putXat: aPosition! !
+	^ state putXat: aPosition! !
 
 
-!TerniLapilli methodsFor: 'move' stamp: 'na 6/17/2020 16:20:26'!
+!TerniLapilli methodsFor: 'move' stamp: 'na 6/18/2020 00:47:08'!
 moveMark: aMark FromPlayerOAt: aPosition
 
 	(Omarks includes: aMark) ifFalse: [^self error: self class MarkMoveErrorDescription].
 	Omarks remove: aMark.
 	Omarks add: aPosition.
-	playerTurn := MovingX new: self.
-	(self hasThisActionWon: Omarks) ifTrue: [hasPlayerOWon := true. playerTurn := GameOver new: self]..
+	state := TerniLapilliState for: self.
 	
 	
 ! !
 
-!TerniLapilli methodsFor: 'move' stamp: 'na 6/17/2020 16:19:42'!
+!TerniLapilli methodsFor: 'move' stamp: 'na 6/18/2020 00:35:49'!
 moveMark: aMark FromPlayerXAt: aPosition
 
 	(Xmarks includes: aMark) ifFalse: [^self error: self class MarkMoveErrorDescription].
 	Xmarks remove: aMark.
 	Xmarks add: aPosition.
-	playerTurn := MovingO new: self.
-	(self hasThisActionWon: Xmarks) ifTrue: [hasPlayerXWon := true. playerTurn := GameOver new: self]..
+	state := TerniLapilliState for: self.
 	
 	
 	! !
 
-!TerniLapilli methodsFor: 'move' stamp: 'na 6/15/2020 12:36:50'!
+!TerniLapilli methodsFor: 'move' stamp: 'na 6/18/2020 00:46:18'!
 moveOMarkAt: aMark to: aPosition
 
 	self checkIfItIsAValidPosition: aPosition.
 	self checkIfThisPosition: aPosition isAdyacentToThisMark: aMark.
 	
-	^ playerTurn moveOMarkAt: aMark to: aPosition.
+	^ state moveOMarkAt: aMark to: aPosition.
 
 ! !
 
-!TerniLapilli methodsFor: 'move' stamp: 'na 6/15/2020 12:30:36'!
+!TerniLapilli methodsFor: 'move' stamp: 'na 6/18/2020 00:46:26'!
 moveXMarkAt: aMark to: aPosition
 
 	self checkIfItIsAValidPosition: aPosition.
 	self checkIfThisPosition: aPosition isAdyacentToThisMark: aMark.
 	
-	^ playerTurn moveXMarkAt: aMark to: aPosition.! !
+	^ state moveXMarkAt: aMark to: aPosition.! !
 
 
-!TerniLapilli methodsFor: 'visualice' stamp: 'na 6/17/2020 14:29:49'!
+!TerniLapilli methodsFor: 'visualice' stamp: 'na 6/18/2020 00:40:37'!
 hasntFinishedYet
-	^ playerTurn hasntFinishedYet ! !
+	
+	^ state hasntFinishedYet ! !
 
 !TerniLapilli methodsFor: 'visualice' stamp: 'rjs 6/13/2020 19:51:50'!
 visualizeOMarks
@@ -940,9 +936,9 @@ visualizeXMarks
 	^ Xmarks copy
 	! !
 
-!TerniLapilli methodsFor: 'visualice' stamp: 'na 6/15/2020 17:46:56'!
+!TerniLapilli methodsFor: 'visualice' stamp: 'na 6/18/2020 00:26:31'!
 whoIsPlaying
-	^ playerTurn whoIsPlaying! !
+	^ state whoIsPlaying! !
 
 
 !TerniLapilli methodsFor: 'asserts' stamp: 'na 6/17/2020 14:01:31'!
@@ -963,19 +959,15 @@ checkIfThisPosition: aPosition isAdyacentToThisMark: aMark
 	
 	^ true! !
 
-!TerniLapilli methodsFor: 'asserts' stamp: 'na 6/17/2020 14:48:04'!
+!TerniLapilli methodsFor: 'asserts' stamp: 'na 6/18/2020 00:52:50'!
 hasThisActionWon: aCollection 
 	|res|
 	res := false.
 	"Rows"
-	res := res or:[(aCollection includesAllOf: {1 @ 1. 2 @ 1. 3 @ 1})].
-	res := res or:[(aCollection includesAllOf: {1 @ 2. 2 @ 2. 3 @ 2})].
-	res := res or:[(aCollection includesAllOf: {1 @ 3. 2 @ 3. 3 @ 3})].
+	res := res or: [(aCollection select:[:each | each y = (aCollection at:1) y]) size = 3].
 	
 	"Columns"
-	res := res or: [(aCollection includesAllOf: {1 @ 1. 1 @ 2. 1 @ 3})].
-	res := res or: [(aCollection includesAllOf: {2 @ 1. 2 @ 2. 2 @ 3})].
-	res := res or: [(aCollection includesAllOf: {3 @ 1. 3 @ 2. 3 @ 3})].
+	res := res or: [(aCollection select:[:each | each x = (aCollection at:1) x]) size = 3].
 	
 	"Diagonals"
 	res := res or:[(aCollection includesAllOf: {1 @ 1. 2 @ 2. 3 @ 3})].
@@ -995,25 +987,48 @@ neighbors: aPosition
 	^aPosition fourNeighbors.! !
 
 
-!TerniLapilli methodsFor: 'inicialization' stamp: 'na 6/17/2020 14:29:20'!
+!TerniLapilli methodsFor: 'inicialization' stamp: 'na 6/18/2020 00:39:49'!
 initialize
 
 	Xmarks := OrderedCollection new.
 	Omarks := OrderedCollection new.
-	playerTurn := PuttingX new: self.
-	hasPlayerXWon := false.
-	hasPlayerOWon := false.! !
+	state := PuttingX new: self.! !
 
 
-!TerniLapilli methodsFor: 'as yet unclassified' stamp: 'na 6/17/2020 19:17:56'!
+!TerniLapilli methodsFor: 'as yet unclassified' stamp: 'na 6/18/2020 00:32:03'!
 hasPlayerOWon
 
-	^hasPlayerOWon ! !
+	^self hasThisActionWon: Omarks.! !
 
-!TerniLapilli methodsFor: 'as yet unclassified' stamp: 'na 6/15/2020 19:38:01'!
+!TerniLapilli methodsFor: 'as yet unclassified' stamp: 'na 6/18/2020 00:32:29'!
 hasPlayerXWon
 
-	^hasPlayerXWon ! !
+	^self hasThisActionWon: Xmarks. ! !
+
+!TerniLapilli methodsFor: 'as yet unclassified' stamp: 'na 6/18/2020 00:21:27'!
+isMovingO
+
+	^self whoIsPlaying = 'X' and: [Omarks size = 3].! !
+
+!TerniLapilli methodsFor: 'as yet unclassified' stamp: 'na 6/18/2020 00:21:33'!
+isMovingX
+
+	^self whoIsPlaying = 'O' and: [Omarks size = 3].! !
+
+!TerniLapilli methodsFor: 'as yet unclassified' stamp: 'na 6/18/2020 00:10:25'!
+isPuttingO
+
+	^ Omarks size < Xmarks size! !
+
+!TerniLapilli methodsFor: 'as yet unclassified' stamp: 'na 6/18/2020 00:09:08'!
+isPuttingX
+
+	^(Xmarks size < 3)  and: [Xmarks size = Omarks size].! !
+
+!TerniLapilli methodsFor: 'as yet unclassified' stamp: 'na 6/18/2020 00:43:42'!
+state
+
+	^TerniLapilliState for:self.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -1089,15 +1104,20 @@ whoIsPlaying
 TerniLapilliState class
 	instanceVariableNames: ''!
 
-!TerniLapilliState class methodsFor: 'as yet unclassified' stamp: 'na 6/17/2020 20:25:48'!
+!TerniLapilliState class methodsFor: 'as yet unclassified' stamp: 'na 6/18/2020 00:38:47'!
 for: aTerniLapilli
 
-	^(self allSubclasses detect: [:aState | aState isFor: aTerniLapilli]) new initializeFor: aTerniLapilli. ! !
+	^(self allSubclasses detect: [:aState | aState isFor: aTerniLapilli]) new: aTerniLapilli . ! !
 
 !TerniLapilliState class methodsFor: 'as yet unclassified' stamp: 'na 6/17/2020 20:26:36'!
 isFor: aTernilaPilli
 
 	^self subclassResponsibility! !
+
+!TerniLapilliState class methodsFor: 'as yet unclassified' stamp: 'na 6/18/2020 00:39:24'!
+new: aTerniLapilli
+
+	^self basicNew initializeFor: aTerniLapilli.! !
 
 
 !classDefinition: #GameOver category: #TerniLapilliExercise!
@@ -1205,6 +1225,17 @@ putXat: aPosition
 	
 	^game error: game class invalidPlayerErrorDescription! !
 
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'MovingO class' category: #TerniLapilliExercise!
+MovingO class
+	instanceVariableNames: ''!
+
+!MovingO class methodsFor: 'as yet unclassified' stamp: 'na 6/18/2020 00:19:23'!
+isFor: aTerniLapilli
+
+	^aTerniLapilli isMovingO and: [aTerniLapilli hasPlayerOWon not]! !
+
 
 !classDefinition: #PuttingO category: #TerniLapilliExercise!
 PlayingO subclass: #PuttingO
@@ -1232,6 +1263,17 @@ putOat: aPosition
 putXat: aPosition
 	 
 	^ game error: game class invalidPlayerErrorDescription .! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'PuttingO class' category: #TerniLapilliExercise!
+PuttingO class
+	instanceVariableNames: ''!
+
+!PuttingO class methodsFor: 'as yet unclassified' stamp: 'na 6/18/2020 00:09:47'!
+isFor: aTerniLapilli
+
+	^aTerniLapilli isPuttingO and: [aTerniLapilli hasPlayerOWon not]! !
 
 
 !classDefinition: #PlayingX category: #TerniLapilliExercise!
@@ -1290,6 +1332,17 @@ putXat: aPosition
 	
 	^ game error: game class invalidNumberOfMarksErrorDescription! !
 
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'MovingX class' category: #TerniLapilliExercise!
+MovingX class
+	instanceVariableNames: ''!
+
+!MovingX class methodsFor: 'as yet unclassified' stamp: 'na 6/18/2020 00:21:58'!
+isFor: aTerniLapilli
+
+	^aTerniLapilli isMovingX and: [aTerniLapilli hasPlayerXWon not]! !
+
 
 !classDefinition: #PuttingX category: #TerniLapilliExercise!
 PlayingX subclass: #PuttingX
@@ -1317,3 +1370,14 @@ putOat: aPosition
 putXat: aPosition
 	
 	game addMarkFromPlayerXAt: aPosition! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'PuttingX class' category: #TerniLapilliExercise!
+PuttingX class
+	instanceVariableNames: ''!
+
+!PuttingX class methodsFor: 'as yet unclassified' stamp: 'na 6/18/2020 00:08:13'!
+isFor: aTerniLapilli
+
+	^aTerniLapilli isPuttingX and: [aTerniLapilli hasPlayerXWon not]! !
