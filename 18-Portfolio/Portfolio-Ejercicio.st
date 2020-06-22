@@ -5,8 +5,8 @@ TestCase subclass: #PortfolioTest
 	poolDictionaries: ''
 	category: 'Portfolio-Ejercicio'!
 
-!PortfolioTest methodsFor: 'tests' stamp: 'rjs 6/21/2020 19:42:03'!
-test01AnEmptyPortfolioHasAnEmptyBalance
+!PortfolioTest methodsFor: 'tests' stamp: 'na 6/22/2020 08:23:44'!
+test01AnEmptyPortfolioHasAnEmptyBalanceAndEmptyTransactions
 
 	| portfolio |
 	
@@ -18,7 +18,7 @@ test01AnEmptyPortfolioHasAnEmptyBalance
 	
 	! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'rjs 6/21/2020 16:41:26'!
+!PortfolioTest methodsFor: 'tests' stamp: 'na 6/22/2020 08:31:23'!
 test02TransactionOfAPortfolioAreTheTransactionsOfTheReceptiveAccount
 
 	| portfolio account aTransaction |
@@ -34,7 +34,7 @@ test02TransactionOfAPortfolioAreTheTransactionsOfTheReceptiveAccount
 	
 	! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'rjs 6/21/2020 16:43:40'!
+!PortfolioTest methodsFor: 'tests' stamp: 'na 6/22/2020 08:31:36'!
 test03TransactionOfAPortfolioAreTheTransactionsOfTwoTheReceptiveAccounts
 
 	| portfolio account1 account2 aTransaction1 aTransaction2|
@@ -49,33 +49,34 @@ test03TransactionOfAPortfolioAreTheTransactionsOfTwoTheReceptiveAccounts
 	aTransaction2 := Deposit register: 100 on: account2.
 	
 	self assert: portfolio transactions equals: (OrderedCollection newFrom: {aTransaction1.aTransaction2}).
-
+	
 	
 	! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'rjs 6/21/2020 16:56:23'!
+!PortfolioTest methodsFor: 'tests' stamp: 'na 6/22/2020 08:31:50'!
 test04TransactionsOfAPortfolioOfAccountsAndPortfoliosResolveRecursively
 
-	| portfolio1 portfolio2 account1 account2 account3 aTransaction1 aTransaction2 aTransaction3 |
+	| portfolioChild portfolioFather account1 account2 account3 aTransaction1 aTransaction2 aTransaction3 |
 	
-	portfolio1 := Portfolio new.
-	portfolio2 := Portfolio new.
+	portfolioChild := Portfolio new.
+	portfolioFather := Portfolio new.
 	account1 := ReceptiveAccount new.
 	account2 := ReceptiveAccount new.
 	account3:= ReceptiveAccount new.
 	
-	portfolio1 add: account1.
-	portfolio1 add: account2.
-	portfolio2 add: portfolio1.
-	portfolio2 add: account3.
+	portfolioChild add: account1.
+	portfolioChild add: account2.
+	portfolioFather add: portfolioChild.
+	portfolioFather add: account3.
 	
 	
 	aTransaction1 := Deposit register: 1 on: account1.
 	aTransaction2 := Deposit register: 2 on: account2.
 	aTransaction3 := Deposit register: 3 on: account3.
 	
-	self assert: portfolio2 transactions equals: (OrderedCollection newFrom: {aTransaction1. aTransaction2. aTransaction3}).
-
+	self assert: portfolioFather transactions equals: (OrderedCollection newFrom: {aTransaction1. aTransaction2. aTransaction3}).
+	self assert: portfolioChild transactions equals: (OrderedCollection newFrom: {aTransaction1.aTransaction2}).
+	
 	
 	! !
 
@@ -93,27 +94,28 @@ test05BalanceOfAPortfolioIsTheBalanceOfTheReceptiveAccount
 	self assert: portfolio balance equals: 100
 	! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'rjs 6/21/2020 17:04:47'!
+!PortfolioTest methodsFor: 'tests' stamp: 'na 6/22/2020 08:33:21'!
 test06BalanceOfAPortfolioIsTheBalanceOfAccountsAndPortofoliosBalances
 
-	| portfolio1 portfolio2 account1 account2 account3 |
+	| portfolioChild portfolioFather account1 account2 account3 |
 	
-	portfolio1 := Portfolio new.
-	portfolio2 := Portfolio new.
+	portfolioChild := Portfolio new.
+	portfolioFather := Portfolio new.
 	account1 := ReceptiveAccount new.
 	account2 := ReceptiveAccount new.
 	account3:= ReceptiveAccount new.
 	
-	portfolio1 add: account1.
-	portfolio1 add: account2.
-	portfolio2 add: portfolio1.
-	portfolio2 add: account3.
+	portfolioChild add: account1.
+	portfolioChild add: account2.
+	portfolioFather add: portfolioChild.
+	portfolioFather add: account3.
 	
 	Deposit register: 1 on: account1.
 	Deposit register: 2 on: account2.
 	Deposit register: 3 on: account3.
 	
-	self assert: portfolio2 balance equals: 6.! !
+	self assert: portfolioFather balance equals: portfolioChild balance + account3 balance.
+	self assert: portfolioChild balance equals: account1 balance + account2 balance.! !
 
 !PortfolioTest methodsFor: 'tests' stamp: 'rjs 6/21/2020 17:06:39'!
 test07HasRegisteredOfAPortfolioIsTheHasRegisteredOfTheReceptiveAccount
@@ -129,31 +131,33 @@ test07HasRegisteredOfAPortfolioIsTheHasRegisteredOfTheReceptiveAccount
 	self assert: (portfolio hasRegistered: aTransaction)
 	! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'rjs 6/21/2020 17:08:18'!
+!PortfolioTest methodsFor: 'tests' stamp: 'na 6/22/2020 08:34:37'!
 test08HasRegisteredOfAPortfolioIsTheHasRegisteredOfTheAccountsAndPortfolios
 
-	| portfolio1 portfolio2 account1 account2 account3 aTransaction1 aTransaction2 aTransaction3 |
+	| portfolioChild portfolioFather account1 account2 account3 aTransaction1 aTransaction2 aTransaction3 |
 	
-	portfolio1 := Portfolio new.
-	portfolio2 := Portfolio new.
+	portfolioChild := Portfolio new.
+	portfolioFather := Portfolio new.
 	account1 := ReceptiveAccount new.
 	account2 := ReceptiveAccount new.
 	account3:= ReceptiveAccount new.
 	
-	portfolio1 add: account1.
-	portfolio1 add: account2.
-	portfolio2 add: portfolio1.
-	portfolio2 add: account3.
+	portfolioChild add: account1.
+	portfolioChild add: account2.
+	portfolioFather add: portfolioChild.
+	portfolioFather add: account3.
 	
 	aTransaction1 := Deposit register: 1 on: account1.
 	aTransaction2 := Deposit register: 2 on: account2.
 	aTransaction3 := Deposit register: 3 on: account3.
 	
-	self assert: (portfolio2 hasRegistered: aTransaction1).
-	self assert: (portfolio2 hasRegistered: aTransaction2).
-	self assert: (portfolio2 hasRegistered: aTransaction3).! !
+	self assert: (portfolioFather hasRegistered: aTransaction1).
+	self assert: (portfolioFather hasRegistered: aTransaction2).
+	self assert: (portfolioFather hasRegistered: aTransaction3).
+	self assert: (portfolioChild hasRegistered: aTransaction1).
+	self assert: (portfolioChild hasRegistered: aTransaction2).! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'rjs 6/21/2020 17:21:06'!
+!PortfolioTest methodsFor: 'tests' stamp: 'na 6/22/2020 08:37:31'!
 test09APortfolioCanNotAddTheSameAccountTwice
 
 	| portfolio account  |
@@ -168,102 +172,102 @@ test09APortfolioCanNotAddTheSameAccountTwice
 	raise: Error
 	withMessageText: [	self assert: portfolio balance equals: 0.
 		 						self assert: portfolio transactions equals: OrderedCollection  new.
-								Portfolio CanNotAddAnAccountTwiceErrorDescription ]
+								Portfolio canNotAddAnAccountTwiceErrorDescription ]
 ! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'rjs 6/21/2020 19:30:53'!
+!PortfolioTest methodsFor: 'tests' stamp: 'na 6/22/2020 08:37:31'!
 test10APortfolioCanNotAddTheSameAccountThatHasHisDirectFather
 
-	| portfolio1 portfolio2 account1 |
+	| portfolioChild portfolioFather account1 |
 	
-	portfolio1 := Portfolio new.
-	portfolio2 := Portfolio new.
+	portfolioChild := Portfolio new.
+	portfolioFather := Portfolio new.
 	account1 := ReceptiveAccount new.
 	
-	portfolio2 add: account1.
-	portfolio2 add: portfolio1.
+	portfolioFather add: account1.
+	portfolioFather add: portfolioChild.
 	
 	
 	self
-	should: [ portfolio1 add: account1. ]
+	should: [ portfolioChild add: account1. ]
 	raise: Error
-	withMessageText: [Portfolio CanNotAddAnAccountTwiceErrorDescription ]! !
+	withMessageText: [ Portfolio canNotAddAnAccountTwiceErrorDescription ]! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'rjs 6/21/2020 18:39:09'!
+!PortfolioTest methodsFor: 'tests' stamp: 'na 6/22/2020 08:38:01'!
 test11APortfolioCanNotAddTheSameAccountThatHasHisDirectSon
 
-	| portfolio1 portfolio2 account1 |
+	| portfolioChild portfolioFather account1 |
 	
-	portfolio1 := Portfolio new.
-	portfolio2 := Portfolio new.
+	portfolioChild := Portfolio new.
+	portfolioFather := Portfolio new.
 	account1 := ReceptiveAccount new.
 	
-	portfolio1 add: account1.
-	portfolio2 add: portfolio1.
+	portfolioChild add: account1.
+	portfolioFather add: portfolioChild.
 	
 	
 	self
-	should: [ portfolio2 add: account1.]
+	should: [ portfolioFather add: account1.]
 	raise: Error
-	withMessageText: [Portfolio CanNotAddAnAccountTwiceErrorDescription ]! !
+	withMessageText: [Portfolio canNotAddAnAccountTwiceErrorDescription ]! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'rjs 6/21/2020 18:56:04'!
+!PortfolioTest methodsFor: 'tests' stamp: 'na 6/22/2020 08:38:28'!
 test12APortfolioWithAnAccountCanNotAddItSelf
 
-	| portfolio1  account1 |
+	| portfolio  account |
 	
-	portfolio1 := Portfolio new.
-	account1 := ReceptiveAccount new.
+	portfolio := Portfolio new.
+	account := ReceptiveAccount new.
 	
-	portfolio1 add: account1.
+	portfolio add: account.
 	
 	self
-	should: [ portfolio1 add: portfolio1]
+	should: [ portfolio add: portfolio]
 	raise: Error
-	withMessageText: [Portfolio CanNotAddAnAccountTwiceErrorDescription ]! !
+	withMessageText: [Portfolio canNotAddAnAccountTwiceErrorDescription ]! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'rjs 6/21/2020 19:06:51'!
+!PortfolioTest methodsFor: 'tests' stamp: 'na 6/22/2020 08:40:54'!
 test13APortfolioCanNotAddAnAccountThatItsOwnedByARoot
 
-	| portfolio1 portfolio2 portfolio3 portfolio4 portfolio5 account1 |
+	| portfolioRootLeft portfolioFatherLeft portfolioChild portfolioFatherRight portfolioRootRight account |
 	
-	portfolio1 := Portfolio new.
-	portfolio2 := Portfolio new.
-	portfolio3 := Portfolio new.
-	portfolio4 := Portfolio new.
-	portfolio5 := Portfolio new.
-	account1 := ReceptiveAccount new.
+	portfolioRootLeft := Portfolio new.
+	portfolioFatherLeft := Portfolio new.
+	portfolioChild := Portfolio new.
+	portfolioFatherRight := Portfolio new.
+	portfolioRootRight := Portfolio new.
+	account := ReceptiveAccount new.
 	
-	portfolio1 add: portfolio2.
-	portfolio2 add: portfolio3.
-	portfolio4 add: portfolio3.
-	portfolio5 add: portfolio4.
-	portfolio1 add: account1.
-	portfolio5 add: account1.
+	portfolioRootLeft add: portfolioFatherLeft.
+	portfolioFatherLeft add: portfolioChild.
+	portfolioFatherRight add: portfolioChild.
+	portfolioRootRight add: portfolioFatherRight.
+	portfolioRootLeft add: account.
+	portfolioRootRight add: account.
 	
 	self
-	should: [ portfolio3 add: account1]
+	should: [ portfolioChild add: account]
 	raise: Error
-	withMessageText: [Portfolio CanNotAddAnAccountTwiceErrorDescription ]! !
+	withMessageText: [Portfolio canNotAddAnAccountTwiceErrorDescription ]! !
 
-!PortfolioTest methodsFor: 'tests' stamp: 'rjs 6/21/2020 19:40:45'!
+!PortfolioTest methodsFor: 'tests' stamp: 'na 6/22/2020 08:42:35'!
 test14CannotAddPortfoliosTwiceWithNoDirectParentsInBetween
 
-	| portfolio1 portfolio2 portfolio3 account1 |
+	| otherPortfolio portfolioFather portfolioChild account |
 	
-	portfolio1 := Portfolio new.
-	portfolio2 := Portfolio new.
-	portfolio3 := Portfolio new.
-	account1 := ReceptiveAccount new.
+	otherPortfolio := Portfolio new.
+	portfolioFather := Portfolio new.
+	portfolioChild := Portfolio new.
+	account := ReceptiveAccount new.
 	
-	portfolio1 add: account1.
-	portfolio2 add: account1.
-	portfolio2 add: portfolio3.
+	otherPortfolio add: account.
+	portfolioFather add: account.
+	portfolioFather add: portfolioChild.
 	
 	self
-	should: [ portfolio3 add: portfolio1]
+	should: [ portfolioChild add: otherPortfolio]
 	raise: Error
-	withMessageText: [Portfolio CanNotAddAnAccountTwiceErrorDescription ]! !
+	withMessageText: [Portfolio canNotAddAnAccountTwiceErrorDescription ]! !
 
 
 !classDefinition: #ReceptiveAccountTest category: #'Portfolio-Ejercicio'!
@@ -355,6 +359,191 @@ test07AccountKnowsItsTransactions
 	self assert: 1 equals: account1 transactions size .
 	self assert: (account1 transactions includes: deposit1).
 ! !
+
+
+!classDefinition: #Account category: #'Portfolio-Ejercicio'!
+Object subclass: #Account
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Portfolio-Ejercicio'!
+
+!Account methodsFor: 'add - private' stamp: 'na 6/22/2020 08:44:26'!
+addParent: aPortfolio
+
+	^self subclassResponsibility ! !
+
+!Account methodsFor: 'add - private' stamp: 'na 6/22/2020 08:45:07'!
+hasRegisteredThisAccount: anAccount
+
+	^self subclassResponsibility ! !
+
+
+!Account methodsFor: 'accsesing' stamp: 'na 6/22/2020 08:44:42'!
+balance
+
+	^self subclassResponsibility ! !
+
+!Account methodsFor: 'accsesing' stamp: 'na 6/22/2020 08:44:54'!
+hasRegistered: aTransaction
+
+	^self subclassResponsibility ! !
+
+!Account methodsFor: 'accsesing' stamp: 'na 6/22/2020 08:45:46'!
+transactions
+
+	^self subclassResponsibility ! !
+
+
+!classDefinition: #Portfolio category: #'Portfolio-Ejercicio'!
+Account subclass: #Portfolio
+	instanceVariableNames: 'accounts parents'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Portfolio-Ejercicio'!
+
+!Portfolio methodsFor: 'assertions' stamp: 'rjs 6/21/2020 19:38:40'!
+checkPortfolioCanAdd: anAccount
+
+	self parentsRootSearch do: [:each | each hasRegisteredThisAccount: anAccount ].
+! !
+
+
+!Portfolio methodsFor: 'add - private' stamp: 'rjs 6/21/2020 17:42:32'!
+addParent: aPortfolio
+
+	parents add: aPortfolio.! !
+
+!Portfolio methodsFor: 'add - private' stamp: 'na 6/22/2020 08:37:31'!
+hasRegisteredThisAccount: anAccount
+
+		(accounts select: [:each | (each hasRegisteredThisAccount: anAccount) or: [anAccount hasRegisteredThisAccount: each] ]  ) size > 0 ifTrue: [ ^ self error: self class canNotAddAnAccountTwiceErrorDescription. ].
+		
+		^ false! !
+
+!Portfolio methodsFor: 'add - private' stamp: 'rjs 6/21/2020 19:24:52'!
+parentsRootSearch
+
+	| res |
+	
+	res := OrderedCollection new.
+	
+	res add: self rootParents.
+	
+	^ res! !
+
+!Portfolio methodsFor: 'add - private' stamp: 'rjs 6/21/2020 19:30:35'!
+rootParents
+
+	(parents isEmpty) ifTrue: [^self].
+	
+	parents do:[ :each | ^ each rootParents ]
+! !
+
+
+!Portfolio methodsFor: 'accesing' stamp: 'rjs 6/21/2020 17:38:06'!
+balance
+
+	^ accounts inject: 0 into: [ :sum :each  | sum + each balance ].! !
+
+!Portfolio methodsFor: 'accesing' stamp: 'rjs 6/18/2020 21:16:08'!
+hasRegistered: aTransaction
+
+ 	^ self transactions  includes: aTransaction
+! !
+
+!Portfolio methodsFor: 'accesing' stamp: 'na 6/22/2020 08:55:00'!
+transactions
+
+	| res |
+	
+	res := OrderedCollection  new.
+	
+	accounts do: [ :each |  res addAllLast: (each transactions) ].
+	
+	^ res
+! !
+
+
+!Portfolio methodsFor: 'initialization' stamp: 'rjs 6/21/2020 17:37:45'!
+initialize
+
+	accounts := OrderedCollection new.
+	parents := OrderedCollection new.! !
+
+
+!Portfolio methodsFor: 'actions' stamp: 'rjs 6/21/2020 19:38:52'!
+add: anAccount
+
+	self checkPortfolioCanAdd: anAccount.
+	
+	accounts add: anAccount.
+	
+	anAccount addParent: self.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Portfolio class' category: #'Portfolio-Ejercicio'!
+Portfolio class
+	instanceVariableNames: ''!
+
+!Portfolio class methodsFor: 'initialization' stamp: 'rjs 6/18/2020 20:09:54'!
+new
+ ^ self basicNew initialize .! !
+
+
+!Portfolio class methodsFor: 'error' stamp: 'na 6/22/2020 08:37:31'!
+canNotAddAnAccountTwiceErrorDescription
+	 ^ ' No podes Agregar la misma cuenta 2 veces '.! !
+
+
+!classDefinition: #ReceptiveAccount category: #'Portfolio-Ejercicio'!
+Account subclass: #ReceptiveAccount
+	instanceVariableNames: 'transactions'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Portfolio-Ejercicio'!
+
+!ReceptiveAccount methodsFor: 'initialization' stamp: 'NR 10/17/2019 15:06:56'!
+initialize
+
+	transactions := OrderedCollection new.! !
+
+
+!ReceptiveAccount methodsFor: 'transactions' stamp: 'HernanWilkinson 7/13/2011 18:37'!
+register: aTransaction
+
+	transactions add: aTransaction 
+! !
+
+!ReceptiveAccount methodsFor: 'transactions' stamp: 'HernanWilkinson 7/13/2011 18:37'!
+transactions 
+
+	^ transactions copy! !
+
+
+!ReceptiveAccount methodsFor: 'balance' stamp: 'rjs 6/18/2020 20:43:07'!
+balance
+	
+	^ transactions inject: 0 into: [ :sum :aTransaction | aTransaction applyToBalance: sum].! !
+
+
+!ReceptiveAccount methodsFor: 'testing' stamp: 'NR 10/17/2019 03:28:43'!
+hasRegistered: aTransaction
+
+	^ transactions includes: aTransaction 
+! !
+
+
+!ReceptiveAccount methodsFor: 'add - private' stamp: 'rjs 6/21/2020 17:39:37'!
+addParent: aPortfolio
+
+	^ self! !
+
+!ReceptiveAccount methodsFor: 'add - private' stamp: 'rjs 6/21/2020 18:19:02'!
+hasRegisteredThisAccount: anAccount
+
+	^ self = anAccount! !
 
 
 !classDefinition: #AccountTransaction category: #'Portfolio-Ejercicio'!
@@ -456,154 +645,3 @@ Withdraw class
 for: aValue
 
 	^ self new initializeFor: aValue ! !
-
-
-!classDefinition: #Portfolio category: #'Portfolio-Ejercicio'!
-Object subclass: #Portfolio
-	instanceVariableNames: 'accounts parents'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Portfolio-Ejercicio'!
-
-!Portfolio methodsFor: 'assertions' stamp: 'rjs 6/21/2020 19:38:40'!
-checkPortfolioCanAdd: anAccount
-
-	self parentsRootSearch do: [:each | each hasRegisteredThisAccount: anAccount ].
-! !
-
-
-!Portfolio methodsFor: 'add - private' stamp: 'rjs 6/21/2020 17:42:32'!
-addParent: aPortfolio
-
-	parents add: aPortfolio.! !
-
-!Portfolio methodsFor: 'add - private' stamp: 'rjs 6/21/2020 18:52:38'!
-hasRegisteredThisAccount: anAccount
-
-		(accounts select: [:each | (each hasRegisteredThisAccount: anAccount) or: [anAccount hasRegisteredThisAccount: each] ]  ) size > 0 ifTrue: [ ^ self error: self class CanNotAddAnAccountTwiceErrorDescription. ].
-		
-		^ false! !
-
-!Portfolio methodsFor: 'add - private' stamp: 'rjs 6/21/2020 19:24:52'!
-parentsRootSearch
-
-	| res |
-	
-	res := OrderedCollection new.
-	
-	res add: self rootParents.
-	
-	^ res! !
-
-!Portfolio methodsFor: 'add - private' stamp: 'rjs 6/21/2020 19:30:35'!
-rootParents
-
-	(parents isEmpty) ifTrue: [^self].
-	
-	parents do:[ :each | ^ each rootParents ]
-! !
-
-
-!Portfolio methodsFor: 'accesing' stamp: 'rjs 6/21/2020 17:38:06'!
-balance
-
-	^ accounts inject: 0 into: [ :sum :each  | sum + each balance ].! !
-
-!Portfolio methodsFor: 'accesing' stamp: 'rjs 6/18/2020 21:16:08'!
-hasRegistered: aTransaction
-
- 	^ self transactions  includes: aTransaction
-! !
-
-!Portfolio methodsFor: 'accesing' stamp: 'rjs 6/21/2020 17:38:15'!
-transactions
-
-	| res |
-	
-	res := OrderedCollection  new.
-	
-	accounts do: [ :each |  res addAllLast: (each transactions) ].
-	
-	^ res.
-! !
-
-
-!Portfolio methodsFor: 'initialization' stamp: 'rjs 6/21/2020 17:37:45'!
-initialize
-
-	accounts := OrderedCollection new.
-	parents := OrderedCollection new.! !
-
-
-!Portfolio methodsFor: 'actions' stamp: 'rjs 6/21/2020 19:38:52'!
-add: anAccount
-
-	self checkPortfolioCanAdd: anAccount.
-	
-	accounts add: anAccount.
-	
-	anAccount addParent: self.! !
-
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
-
-!classDefinition: 'Portfolio class' category: #'Portfolio-Ejercicio'!
-Portfolio class
-	instanceVariableNames: ''!
-
-!Portfolio class methodsFor: 'initialization' stamp: 'rjs 6/18/2020 20:09:54'!
-new
- ^ self basicNew initialize .! !
-
-
-!Portfolio class methodsFor: 'error' stamp: 'rjs 6/21/2020 17:16:54'!
-CanNotAddAnAccountTwiceErrorDescription
-	 ^ ' No podes Agregar la misma cuenta 2 veces '.! !
-
-
-!classDefinition: #ReceptiveAccount category: #'Portfolio-Ejercicio'!
-Object subclass: #ReceptiveAccount
-	instanceVariableNames: 'transactions'
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'Portfolio-Ejercicio'!
-
-!ReceptiveAccount methodsFor: 'initialization' stamp: 'NR 10/17/2019 15:06:56'!
-initialize
-
-	transactions := OrderedCollection new.! !
-
-
-!ReceptiveAccount methodsFor: 'transactions' stamp: 'HernanWilkinson 7/13/2011 18:37'!
-register: aTransaction
-
-	transactions add: aTransaction 
-! !
-
-!ReceptiveAccount methodsFor: 'transactions' stamp: 'HernanWilkinson 7/13/2011 18:37'!
-transactions 
-
-	^ transactions copy! !
-
-
-!ReceptiveAccount methodsFor: 'balance' stamp: 'rjs 6/18/2020 20:43:07'!
-balance
-	
-	^ transactions inject: 0 into: [ :sum :aTransaction | aTransaction applyToBalance: sum].! !
-
-
-!ReceptiveAccount methodsFor: 'testing' stamp: 'NR 10/17/2019 03:28:43'!
-hasRegistered: aTransaction
-
-	^ transactions includes: aTransaction 
-! !
-
-
-!ReceptiveAccount methodsFor: 'private' stamp: 'rjs 6/21/2020 17:39:37'!
-addParent: aPortfolio
-
-	^ self! !
-
-!ReceptiveAccount methodsFor: 'private' stamp: 'rjs 6/21/2020 18:19:02'!
-hasRegisteredThisAccount: anAccount
-
-	^ self = anAccount! !
