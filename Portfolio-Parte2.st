@@ -5,18 +5,18 @@ TestCase subclass: #AccountSummaryTest
 	poolDictionaries: ''
 	category: 'Portfolio-Parte2'!
 
-!AccountSummaryTest methodsFor: 'as yet unclassified' stamp: 'rjs 6/22/2020 21:24:49'!
+!AccountSummaryTest methodsFor: 'as yet unclassified' stamp: 'rjs 6/22/2020 21:58:55'!
 test01EmptyAccountEqualsEmptyReport
 
 	| account |
 	
 	account := ReceptiveAccount new.
 
-	self assert: account report equals: OrderedCollection  new.
+	self assert: account report equals: (OrderedCollection  newFrom: { 'Balance = 0' }).
 	
 	! !
 
-!AccountSummaryTest methodsFor: 'as yet unclassified' stamp: 'rjs 6/22/2020 21:35:18'!
+!AccountSummaryTest methodsFor: 'as yet unclassified' stamp: 'rjs 6/22/2020 21:59:31'!
 test02AccountWithADeposit
 
 	| account |
@@ -24,41 +24,43 @@ test02AccountWithADeposit
 	account := ReceptiveAccount new.
 	Deposit register: 10 on: account.
 
-	self assert: account report equals: (OrderedCollection  newFrom: { 'Depósito por 10.' }).
+	self assert: account report equals: (OrderedCollection  newFrom: { 'Depósito por 10.'. 'Balance = 10' }).
 	
 	! !
 
-!AccountSummaryTest methodsFor: 'as yet unclassified' stamp: 'rjs 6/22/2020 21:30:52'!
+!AccountSummaryTest methodsFor: 'as yet unclassified' stamp: 'rjs 6/22/2020 21:59:42'!
 test03AccountWithSeveralsTransactions
 
 	| account |
 	
 	account := ReceptiveAccount new.
 	Deposit register: 10 on: account.
-	Withdraw register: 50 on: account.
+	Withdraw register: 5 on: account.
 
-	self assert: account report equals: (OrderedCollection  newFrom: { 'Depósito por 10.'. 'Extracción por 50.' }).
+	self assert: account report equals: (OrderedCollection  newFrom: { 'Depósito por 10.'. 'Extracción por 5.'. 'Balance = 5'  }).
 	
 	! !
 
-!AccountSummaryTest methodsFor: 'as yet unclassified' stamp: 'rjs 6/22/2020 21:40:55'!
+!AccountSummaryTest methodsFor: 'as yet unclassified' stamp: 'rjs 6/22/2020 22:06:48'!
 test04AccountsWithSeveralsTransfer
 
 	| account1 account2 |
 	
 	account1 := ReceptiveAccount new.
 	account2 := ReceptiveAccount new.
-	Deposit register: 10 on: account1.
-	Withdraw register: 50 on: account1.
+	Deposit register: 100 on: account1.
+	Deposit register: 100 on: account2.
+	Withdraw register: 10 on: account1.
 	Transfer register: 10 in: account1 andOutOf: account2.
-	Transfer register: 3 in: account2 andOutOf: account1.
+	Transfer register: 50 in: account2 andOutOf: account1.
 
-	self assert: account1 report equals: (OrderedCollection  newFrom: { 'Depósito por 10.'. 
-																					'Extracción por 50.'. 
+	self assert: account1 report equals: (OrderedCollection  newFrom: { 'Depósito por 100.'. 
+																					'Extracción por 10.'. 
 																					'Entrada por transferencia de 10.'.
-																					'Salida por transferencia de 3.' }).
+																					'Salida por transferencia de 50.'.
+																					'Balance = 50' }).
 																					
-	self assert: account2 report equals: (OrderedCollection  newFrom: { 'Salida por transferencia de 10.'. 'Entrada por transferencia de 3.' }).
+	self assert: account2 report equals: (OrderedCollection  newFrom: { 'Depósito por 100.'. 'Salida por transferencia de 10.'. 'Entrada por transferencia de 50.'. 'Balance = 140' }).
 	
 	
 	! !
@@ -668,10 +670,15 @@ addedTo: aPortfolio
 	! !
 
 
-!ReceptiveAccount methodsFor: 'as yet unclassified' stamp: 'rjs 6/22/2020 21:34:46'!
+!ReceptiveAccount methodsFor: 'as yet unclassified' stamp: 'rjs 6/22/2020 22:06:12'!
 report
 
-	^ transactions collect: [ :each | each printMe ].
+	| collection |
+	
+	collection := transactions collect: [ :each | each printMe ].
+	collection add: ('Balance = ' , ((self balance) asString)).
+
+	^ collection
 ! !
 
 
