@@ -380,46 +380,83 @@ TestCase subclass: #TransferTest
 	poolDictionaries: ''
 	category: 'Portfolio-Parte2'!
 
-!TransferTest methodsFor: 'as yet unclassified' stamp: 'rjs 6/22/2020 20:42:34'!
+!TransferTest methodsFor: 'as yet unclassified' stamp: 'na 6/25/2020 10:57:35'!
 test01CanDoATransference
 
-	| account2 account1  |
+	| accountOut accountIn|
 	
-	account1 := ReceptiveAccount new.
-	account2 := ReceptiveAccount new.
+	accountIn := ReceptiveAccount new.
+	accountOut := ReceptiveAccount new.
 	
-	Transfer register: 50 in: account1 andOutOf: account2.
+	Transfer register: 50 in: accountIn andOutOf: accountOut.
 	
-	self assert: account1 balance equals: 50.
-	self assert: account2 balance equals: -50.
+	self assert: accountIn balance equals: 50.
+	self assert: accountOut balance equals: -50.
 	
 	! !
 
-!TransferTest methodsFor: 'as yet unclassified' stamp: 'rjs 6/22/2020 21:19:05'!
-test02CanNotDoATransferenceWithNonPositiveMoney
+!TransferTest methodsFor: 'as yet unclassified' stamp: 'na 6/25/2020 08:28:35'!
+test02CanNotDoATransferenceWithNonPositiveOrZeroMoney
 
-	| account2 account1  |
+	| accountOut accountIn  |
 	
-	account1 := ReceptiveAccount new.
-	account2 := ReceptiveAccount new.
+	accountIn := ReceptiveAccount new.
+	accountOut := ReceptiveAccount new.
 
 	
 	self
-		should: [ Transfer register: -50 in: account1 andOutOf: account2.]
+		should: [ Transfer register: 0 in: accountIn andOutOf: accountOut.]
 		raise: Error
 		withMessageText: [ Transfer InvalidTransactionNegativeValueErrorDescription ]! !
 
-!TransferTest methodsFor: 'as yet unclassified' stamp: 'rjs 6/22/2020 20:49:55'!
+!TransferTest methodsFor: 'as yet unclassified' stamp: 'na 6/25/2020 08:28:45'!
 test03AnAccountCanNotDoATransferenceToItself
 
-	| account1  |
+	| account  |
 	
-	account1 := ReceptiveAccount new.
+	account := ReceptiveAccount new.
 	
 	self
-		should: [ Transfer register: 50 in: account1 andOutOf: account1.]
+		should: [ Transfer register: 50 in: account andOutOf: account.]
 		raise: Error
 		withMessageText: [ Transfer InvalidTransactionErrorDescription ]! !
+
+!TransferTest methodsFor: 'as yet unclassified' stamp: 'na 6/25/2020 11:06:07'!
+test04CanReachTheInLegFromTheOutLeg
+
+	|legOut transfer|
+	
+	transfer := Transfer register: 50 in: ReceptiveAccount new andOutOf: ReceptiveAccount new.
+	
+	legOut := transfer legOut.
+	
+	self assert: (legOut transfer) equals: transfer.
+	self assert: (legOut transfer legIn) equals: transfer legIn.
+	! !
+
+!TransferTest methodsFor: 'as yet unclassified' stamp: 'na 6/25/2020 11:06:46'!
+test05CanReachTheOutLegFromTheInLeg
+
+	|legIn transfer|
+	
+	transfer := Transfer register: 50 in: ReceptiveAccount new andOutOf: ReceptiveAccount new.
+	legIn := transfer legIn.
+	
+	self assert: (legIn transfer) equals: transfer.
+	self assert: (legIn transfer legOut) equals: transfer legOut.
+	! !
+
+!TransferTest methodsFor: 'as yet unclassified' stamp: 'na 6/25/2020 16:41:58'!
+test06TheTransferInTheLegsIsTheSame
+
+	|legIn legOut transfer|
+	
+	transfer := Transfer register: 50 in: ReceptiveAccount new andOutOf: ReceptiveAccount new.
+	legIn := transfer legIn.
+	legOut := transfer legOut.
+	
+	self assert: legIn transfer equals: legOut transfer.
+	! !
 
 
 !classDefinition: #Account category: #'Portfolio-Parte2'!
@@ -803,17 +840,37 @@ for: aValue
 
 !classDefinition: #Transfer category: #'Portfolio-Parte2'!
 Object subclass: #Transfer
-	instanceVariableNames: 'value cuenta1 cuenta2'
+	instanceVariableNames: 'value legInComing legOutGoing'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Portfolio-Parte2'!
 
-!Transfer methodsFor: 'as yet unclassified' stamp: 'rjs 6/22/2020 20:20:21'!
-initialize: aValue in: accountIn andOutOf: accountOut
+!Transfer methodsFor: 'as yet unclassified' stamp: 'na 6/25/2020 08:38:36'!
+affectBalance: aBalance
 
-	value := aValue.
-	cuenta1 := accountIn.
-	cuenta2 := accountOut.! !
+	^self subclassResponsibility ! !
+
+!Transfer methodsFor: 'as yet unclassified' stamp: 'na 6/25/2020 16:38:57'!
+initializeWith: anAmount 
+
+	value := anAmount.
+	legInComing := InComingTransfer new for: self.
+	legOutGoing := OutGoingTransfer new for: self.! !
+
+!Transfer methodsFor: 'as yet unclassified' stamp: 'na 6/25/2020 10:57:56'!
+legIn
+
+	^legInComing ! !
+
+!Transfer methodsFor: 'as yet unclassified' stamp: 'na 6/25/2020 10:58:13'!
+legOut
+
+	^legOutGoing ! !
+
+!Transfer methodsFor: 'as yet unclassified' stamp: 'na 6/25/2020 10:43:45'!
+value
+
+	^value! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -831,82 +888,73 @@ InvalidTransactionNegativeValueErrorDescription
 
 	^ ' No podes transferir cantidad de dinero menor o igual a cero '! !
 
-!Transfer class methodsFor: 'as yet unclassified' stamp: 'rjs 6/22/2020 21:17:56'!
-register: aValue in: accountIn andOutOf: accountOut
-
-	( aValue <= 0) ifTrue: [ self error: self InvalidTransactionNegativeValueErrorDescription ].
+!Transfer class methodsFor: 'as yet unclassified' stamp: 'na 6/25/2020 16:36:54'!
+register: anAmount in: accountIn andOutOf: accountOut
+	
+	|transfer|
+	
+	( anAmount <= 0) ifTrue: [ self error: self InvalidTransactionNegativeValueErrorDescription ].
 	
 	(accountIn = accountOut)  ifTrue: [ self error: self  InvalidTransactionErrorDescription ].
 
-	accountIn register: (TransferIn for: aValue in: accountIn).
-	accountOut register: (TransferOut for: aValue in: accountOut).! !
+	transfer := Transfer new initializeWith: anAmount.	
+	accountIn register: transfer legIn.
+	accountOut register: transfer legOut.
+	
+	^transfer ! !
 
 
-!classDefinition: #TransferIn category: #'Portfolio-Parte2'!
-Transfer subclass: #TransferIn
-	instanceVariableNames: 'account'
+!classDefinition: #InComingTransfer category: #'Portfolio-Parte2'!
+Transfer subclass: #InComingTransfer
+	instanceVariableNames: 'transfer'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Portfolio-Parte2'!
 
-!TransferIn methodsFor: 'as yet unclassified' stamp: 'rjs 6/22/2020 20:41:37'!
+!InComingTransfer methodsFor: 'as yet unclassified' stamp: 'na 6/25/2020 10:57:19'!
 affectBalance: aBalance
 
-	^ aBalance + value! !
+	^ aBalance + transfer value.! !
 
-!TransferIn methodsFor: 'as yet unclassified' stamp: 'rjs 6/22/2020 20:41:07'!
-initialize: aValue with: accountIn
+!InComingTransfer methodsFor: 'as yet unclassified' stamp: 'na 6/25/2020 10:56:53'!
+for: aTransfer
 
-	value := aValue .
-	account := accountIn.! !
+	transfer := aTransfer ! !
 
-!TransferIn methodsFor: 'as yet unclassified' stamp: 'rjs 6/22/2020 21:41:53'!
+!InComingTransfer methodsFor: 'as yet unclassified' stamp: 'na 6/25/2020 11:20:59'!
 printMe
 
-	^ 'Entrada por transferencia de ' , value asString , '.'! !
+	^ 'Entrada por transferencia de ' , transfer value asString , '.'! !
 
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+!InComingTransfer methodsFor: 'as yet unclassified' stamp: 'na 6/25/2020 11:01:55'!
+transfer
 
-!classDefinition: 'TransferIn class' category: #'Portfolio-Parte2'!
-TransferIn class
-	instanceVariableNames: ''!
-
-!TransferIn class methodsFor: 'as yet unclassified' stamp: 'rjs 6/22/2020 20:40:03'!
-for: aValue in: accountIn
-
-	^ self new initialize: aValue with: accountIn! !
+	^transfer! !
 
 
-!classDefinition: #TransferOut category: #'Portfolio-Parte2'!
-Transfer subclass: #TransferOut
-	instanceVariableNames: 'account'
+!classDefinition: #OutGoingTransfer category: #'Portfolio-Parte2'!
+Transfer subclass: #OutGoingTransfer
+	instanceVariableNames: 'transfer'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'Portfolio-Parte2'!
 
-!TransferOut methodsFor: 'as yet unclassified' stamp: 'rjs 6/22/2020 20:41:43'!
+!OutGoingTransfer methodsFor: 'as yet unclassified' stamp: 'na 6/25/2020 10:57:12'!
 affectBalance: aBalance
 
-	^ aBalance - value! !
+	^ aBalance - transfer value! !
 
-!TransferOut methodsFor: 'as yet unclassified' stamp: 'rjs 6/22/2020 20:40:53'!
-initialize: aValue with: accountOut
+!OutGoingTransfer methodsFor: 'as yet unclassified' stamp: 'na 6/25/2020 10:57:01'!
+for: aTransfer
 
-	value := aValue .
-	account := accountOut.! !
+	transfer := aTransfer ! !
 
-!TransferOut methodsFor: 'as yet unclassified' stamp: 'rjs 6/22/2020 21:42:04'!
+!OutGoingTransfer methodsFor: 'as yet unclassified' stamp: 'na 6/25/2020 11:21:05'!
 printMe
 
-	^ 'Salida por transferencia de ' , value asString , '.'! !
+	^ 'Salida por transferencia de ' , transfer value asString , '.'! !
 
-"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+!OutGoingTransfer methodsFor: 'as yet unclassified' stamp: 'na 6/25/2020 11:02:06'!
+transfer
 
-!classDefinition: 'TransferOut class' category: #'Portfolio-Parte2'!
-TransferOut class
-	instanceVariableNames: ''!
-
-!TransferOut class methodsFor: 'as yet unclassified' stamp: 'rjs 6/22/2020 20:40:13'!
-for: aValue in: accountOut
-
-	^ self new initialize: aValue with: accountOut! !
+	^transfer! !
