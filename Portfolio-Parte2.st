@@ -5,7 +5,7 @@ TestCase subclass: #AccountSummaryTest
 	poolDictionaries: ''
 	category: 'Portfolio-Parte2'!
 
-!AccountSummaryTest methodsFor: 'as yet unclassified' stamp: 'rjs 6/22/2020 21:58:55'!
+!AccountSummaryTest methodsFor: 'report' stamp: 'rjs 6/22/2020 21:58:55'!
 test01EmptyAccountEqualsEmptyReport
 
 	| account |
@@ -16,7 +16,7 @@ test01EmptyAccountEqualsEmptyReport
 	
 	! !
 
-!AccountSummaryTest methodsFor: 'as yet unclassified' stamp: 'rjs 6/22/2020 21:59:31'!
+!AccountSummaryTest methodsFor: 'report' stamp: 'rjs 6/22/2020 21:59:31'!
 test02AccountWithADeposit
 
 	| account |
@@ -28,7 +28,7 @@ test02AccountWithADeposit
 	
 	! !
 
-!AccountSummaryTest methodsFor: 'as yet unclassified' stamp: 'rjs 6/22/2020 21:59:42'!
+!AccountSummaryTest methodsFor: 'report' stamp: 'rjs 6/22/2020 21:59:42'!
 test03AccountWithSeveralsTransactions
 
 	| account |
@@ -41,7 +41,7 @@ test03AccountWithSeveralsTransactions
 	
 	! !
 
-!AccountSummaryTest methodsFor: 'as yet unclassified' stamp: 'rjs 6/22/2020 22:06:48'!
+!AccountSummaryTest methodsFor: 'report' stamp: 'rjs 6/22/2020 22:06:48'!
 test04AccountsWithSeveralsTransfer
 
 	| account1 account2 |
@@ -64,6 +64,90 @@ test04AccountsWithSeveralsTransfer
 	
 	
 	! !
+
+!AccountSummaryTest methodsFor: 'report' stamp: 'rjs 6/25/2020 20:25:46'!
+test05PortfolioWithEmptyAccount
+
+	| account portfolio |
+	
+	portfolio := Portfolio new.
+	account := ReceptiveAccount new.
+	portfolio  add: account .
+
+	self assert: portfolio report equals: (OrderedCollection  newFrom: { 'Balance = 0' }).
+	
+	! !
+
+!AccountSummaryTest methodsFor: 'report' stamp: 'rjs 6/25/2020 20:31:54'!
+test06PortfolioWithAccountsWithTransactions
+
+	| account1 account2 portfolio |
+	
+	portfolio := Portfolio new.
+	account1 := ReceptiveAccount new.
+	account2 := ReceptiveAccount new.
+	
+	portfolio add: account1.
+	portfolio add: account2.
+	
+	Deposit register: 100 on: account1.
+	Deposit register: 100 on: account2.
+	Transfer register: 50 in: account1 andOutOf: account2.
+
+	self assert: portfolio report equals: (OrderedCollection  newFrom: {  'Depósito por 100.'. 
+																					'Entrada por transferencia de 50.'.
+																					'Balance = 150'.
+																					'Depósito por 100.'.
+																					'Salida por transferencia de 50.'.
+																					'Balance = 50'.
+																					'Balance = 200'  }).
+	! !
+
+!AccountSummaryTest methodsFor: 'report' stamp: 'rjs 6/25/2020 20:43:33'!
+test07PortfolioWithAccountsWithTransactions
+
+	| account1 account2 account3 portfolio1 portfolio2 |
+	
+	portfolio1 := Portfolio new.
+	portfolio2 := Portfolio new.
+	account1 := ReceptiveAccount new.
+	account2 := ReceptiveAccount new.
+	account3 := ReceptiveAccount new.
+	
+	portfolio1 add: account1.
+	portfolio1 add: account2.
+	portfolio2 add: account3.
+	
+	portfolio2 add: portfolio1.
+	
+	Deposit register: 100 on: account1.
+	Deposit register: 100 on: account2.
+	Deposit register: 100 on: account3.
+	Transfer register: 50 in: account1 andOutOf: account2.
+
+	self assert: portfolio2 report equals: (OrderedCollection  newFrom: {    'Depósito por 100.'.
+																					     'Balance = 100'.
+																						'Depósito por 100.'. 
+																						'Entrada por transferencia de 50.'.
+																						'Balance = 150'.
+																						'Depósito por 100.'.
+																						'Salida por transferencia de 50.'.
+																						'Balance = 50'.
+																						'Balance = 200'.
+																						'Balance = 300'  }).
+	! !
+
+!AccountSummaryTest methodsFor: 'report' stamp: 'rjs 6/25/2020 20:47:51'!
+test08EmptyAccountEqualsEmptyNetTransfer
+
+	| account |
+	
+	account := ReceptiveAccount new.
+
+	self assert: account netTransfer equals: 0.
+	
+	! !
+
 
 
 !classDefinition: #PortfolioTest category: #'Portfolio-Parte2'!
@@ -618,10 +702,17 @@ signalCanNotAddAccount
 	self error: self class canNotAddAccountErrorMessage! !
 
 
-!Portfolio methodsFor: 'as yet unclassified' stamp: 'rjs 6/22/2020 21:26:17'!
+!Portfolio methodsFor: 'as yet unclassified' stamp: 'rjs 6/25/2020 20:37:45'!
 report
- 	
-	^ OrderedCollection  new.! !
+
+	| collection |
+	
+	collection:= OrderedCollection new.
+	accounts do: [ :each | collection addAllLast: (each report)].
+	collection add: ('Balance = ' , ((self balance) asString)).
+
+	^ collection
+! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -836,6 +927,79 @@ Withdraw class
 for: aValue
 
 	^ self new initializeFor: aValue ! !
+
+
+!classDefinition: #Reports category: #'Portfolio-Parte2'!
+Object subclass: #Reports
+	instanceVariableNames: 'account'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Portfolio-Parte2'!
+
+!Reports methodsFor: 'as yet unclassified' stamp: 'rjs 6/25/2020 21:34:32'!
+generateSummary: anItem! !
+
+!Reports methodsFor: 'as yet unclassified' stamp: 'rjs 6/25/2020 21:23:01'!
+initiliaze: anAccount
+
+	account := anAccount.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'Reports class' category: #'Portfolio-Parte2'!
+Reports class
+	instanceVariableNames: ''!
+
+!Reports class methodsFor: 'as yet unclassified' stamp: 'rjs 6/25/2020 21:22:38'!
+for: anAccount
+	^ self basicNew initiliaze: anAccount.! !
+
+!Reports class methodsFor: 'as yet unclassified' stamp: 'rjs 6/25/2020 21:21:19'!
+new: algo
+	^ self basicNew initiliaze: algo.! !
+
+
+!classDefinition: #AccountSummary category: #'Portfolio-Parte2'!
+Reports subclass: #AccountSummary
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Portfolio-Parte2'!
+
+!AccountSummary methodsFor: 'as yet unclassified' stamp: 'rjs 6/25/2020 21:33:09'!
+summaryAccounts: anAccount
+
+	| collection |
+	
+	collection := anAccount transactions collect: [ :each | each printMe ].
+	collection add: ('Balance = ' , ((self balance) asString)).
+
+	^ collection
+
+
+! !
+
+!AccountSummary methodsFor: 'as yet unclassified' stamp: 'rjs 6/25/2020 21:25:56'!
+summaryPortfolio: aPortfolio
+
+	| collection |
+	
+	collection:= OrderedCollection new.
+	aPortfolio accounts do: [ :each | collection addAllLast: (each report)].
+	collection add: ('Balance = ' , ((self balance) asString)).
+
+	^ collection
+
+
+! !
+
+
+!classDefinition: #NetTransfer category: #'Portfolio-Parte2'!
+Reports subclass: #NetTransfer
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'Portfolio-Parte2'!
 
 
 !classDefinition: #Transfer category: #'Portfolio-Parte2'!
