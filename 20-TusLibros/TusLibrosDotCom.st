@@ -72,8 +72,21 @@ test04CartCanAddManyCopiesOfAValidBook
 	self assert: cart includes: self validBook.
 	self assert: (cart quantityOf: self validBook) equals: 3.! !
 
-!CartTest methodsFor: 'test' stamp: 'na 7/6/2020 10:05:07'!
-test05CantAddNonPositiveCopiesOfABook
+!CartTest methodsFor: 'test' stamp: 'na 7/6/2020 14:19:48'!
+test05CartCanAddTheQuantityFromDifferentsRequest
+
+	|cart|
+	
+	cart := Cart with: self catalog.
+	cart add: 3 copiesOfThisBook: self validBook.
+	cart add: 2 copiesOfThisBook: self validBook.
+	
+	self deny: cart isEmpty.
+	self assert: cart includes: self validBook.
+	self assert: (cart quantityOf: self validBook) equals: 5.! !
+
+!CartTest methodsFor: 'test' stamp: 'na 7/6/2020 14:17:44'!
+test06CantAddNonPositiveCopiesOfABook
 	
 	|cart|
 	
@@ -85,8 +98,8 @@ test05CantAddNonPositiveCopiesOfABook
 									self assert: cart isEmpty.]
 	! !
 
-!CartTest methodsFor: 'test' stamp: 'na 7/6/2020 10:13:30'!
-test06CantAddManyCopiesOfABookThatDoesntExistsInTheCatalog
+!CartTest methodsFor: 'test' stamp: 'na 7/6/2020 14:17:36'!
+test07CantAddManyCopiesOfABookThatDoesntExistsInTheCatalog
 	
 	|cart|
 	
@@ -98,8 +111,8 @@ test06CantAddManyCopiesOfABookThatDoesntExistsInTheCatalog
 									self assert: cart isEmpty.]
 	! !
 
-!CartTest methodsFor: 'test' stamp: 'na 7/6/2020 10:22:43'!
-test07CartNotHaveABookThatItDidntAddBefore
+!CartTest methodsFor: 'test' stamp: 'na 7/6/2020 14:17:29'!
+test08CartNotHaveABookThatItDidntAddBefore
 	
 	|cart aBook|
 	
@@ -111,8 +124,8 @@ test07CartNotHaveABookThatItDidntAddBefore
 	self assert: (cart quantityOf: aBook) equals: 0.
 	! !
 
-!CartTest methodsFor: 'test' stamp: 'na 7/6/2020 11:07:59'!
-test08CartListItsElementsWell
+!CartTest methodsFor: 'test' stamp: 'na 7/6/2020 14:20:53'!
+test09CartListItsElementsWell
 	
 	|cart|
 	
@@ -120,6 +133,10 @@ test08CartListItsElementsWell
 	cart add: 3 copiesOfThisBook: self validBook.
 	cart add: 2 copiesOfThisBook: self anotherValidBook.
 	
+	self assert: cart includes: self validBook.
+	self assert: cart includes: self anotherValidBook.
+	self assert: (cart quantityOf: self validBook) equals: 3.
+	self assert: (cart quantityOf: self anotherValidBook ) equals: 2.
 	self assert: cart list equals: '(',
 									'''',self validBook,'''->', (cart quantityOf: self validBook) asString, 
 									' ''',self anotherValidBook ,'''->', (cart quantityOf: self anotherValidBook ) asString,
@@ -149,13 +166,15 @@ add: aBook
 	
 	self add: 1 copiesOfThisBook: aBook.! !
 
-!Cart methodsFor: 'adding' stamp: 'na 7/6/2020 10:16:21'!
+!Cart methodsFor: 'adding' stamp: 'na 7/6/2020 15:04:48'!
 add: aQuantity copiesOfThisBook: aBook 
 	
 	self assertPositiveQuantity: aQuantity.
 	self assertTheBookExistsInTheCatalog: aBook.
 	
-	container at: aBook put: aQuantity.! !
+	container at: aBook put: (self quantityOf: aBook) + aQuantity.
+	
+	! !
 
 
 !Cart methodsFor: 'initialization' stamp: 'na 7/6/2020 09:17:13'!
