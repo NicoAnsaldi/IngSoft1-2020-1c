@@ -144,10 +144,17 @@ createSalesBook
 
 ! !
 
-!CashierTest methodsFor: 'test' stamp: 'rjs 7/12/2020 17:25:16'!
+!CashierTest methodsFor: 'test' stamp: 'rjs 7/13/2020 21:08:53'!
+emptyCreditCard
+	
+	^ CreditCard createWithANumber: '1234567891234567' thisDate: (Month month: 2 year: 2025) thisOwner: 'Pepito' thisLimit: 1500 andThisAmount: 1500.
+		
+! !
+
+!CashierTest methodsFor: 'test' stamp: 'rjs 7/13/2020 21:04:12'!
 expiredCreditCard
 	
-	^ CreditCard createWithANumber: '1234567891234567' thisDate: (Month month: 2 year: 2018) andThisOwner: 'Pepito'.
+	^ CreditCard createWithANumber: '1234567891234567' thisDate: (Month month: 2 year: 2018) thisOwner: 'Pepito' thisLimit: 150000 andThisAmount: 0.
 		
 ! !
 
@@ -179,8 +186,8 @@ test01CanNotCheckoutAnEmptyCart
 
 	! !
 
-!CashierTest methodsFor: 'test' stamp: 'rjs 7/12/2020 17:55:33'!
-test02CreateTicketWithAValidCard
+!CashierTest methodsFor: 'test' stamp: 'rjs 7/13/2020 20:49:56'!
+test02ChekoutACartWithAValidCard
 
 	| aCart aCashier |
 	
@@ -191,8 +198,8 @@ test02CreateTicketWithAValidCard
 	
 	self assert: (aCashier checkoutWithACard: self validCreditCard) equals: 2500.! !
 
-!CashierTest methodsFor: 'test' stamp: 'rjs 7/12/2020 17:59:37'!
-test03CreateTicketWithAnExpiredCard
+!CashierTest methodsFor: 'test' stamp: 'rjs 7/13/2020 20:48:39'!
+test03DoNotRegisterWithAnExpiredCard
 
 	| aCart aCashier aSalesBook  |
 	
@@ -220,10 +227,26 @@ test04RegisterASale
 	self assert: (aCashier checkoutWithACard: self validCreditCard) equals: 2500.
 	self assert: aSalesBook equals: (OrderedCollection newFrom: {2500}).! !
 
-!CashierTest methodsFor: 'test' stamp: 'rjs 7/12/2020 16:53:57'!
+!CashierTest methodsFor: 'test' stamp: 'rjs 7/13/2020 21:09:33'!
+test05DoNotRegisterASaleWithEmptyCard
+
+	| aCart aCashier aSalesBook|
+	
+	aCart := Cart acceptingItemsOf: self createCatalog.
+	aCart add: 1 of: self libroValido.
+	aSalesBook := self createSalesBook.
+	aCashier := Cashier createWith: aCart and: self createDateForSale and: aSalesBook.
+	
+	self
+	should: [ aCashier checkoutWithACard: self emptyCreditCard  ]
+	raise: Error
+	withMessageText: [  self assert: (aSalesBook isEmpty).
+							Cashier  emptyCardErrorDescription ]! !
+
+!CashierTest methodsFor: 'test' stamp: 'rjs 7/13/2020 21:02:43'!
 validCreditCard
 	
-	^ CreditCard createWithANumber: '1234567891234567' thisDate: (Month month: 2 year: 2025) andThisOwner: 'Pepito'.
+	^ CreditCard createWithANumber: '1234567891234567' thisDate: (Month month: 2 year: 2025) thisOwner: 'Pepito' thisLimit: 150000 andThisAmount: 0.
 		
 ! !
 
@@ -235,41 +258,43 @@ TestCase subclass: #CreditCardTest
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!CreditCardTest methodsFor: 'test' stamp: 'rjs 7/12/2020 16:18:10'!
+!CreditCardTest methodsFor: 'test' stamp: 'rjs 7/13/2020 20:58:36'!
 test01CreateCreditCard
 
 	| visa |
 
-	visa := CreditCard createWithANumber: '1234567891234567' thisDate: (Month month: 2 year: 2020) andThisOwner: 'Pepito'.
-	
+	visa := CreditCard createWithANumber: '1234567891234567' thisDate: (Month month: 2 year: 2020) thisOwner: 'Pepito' thisLimit: 15000 andThisAmount: 0.
+
 	self assert: visa number equals: '1234567891234567'.
 	self assert: visa date equals: (Month month: 2 year: 2020).
 	self assert: visa owner equals: 'Pepito'.
+	self assert: visa limit equals: 15000.
+	self assert: visa amount equals: 0.
 	! !
 
-!CreditCardTest methodsFor: 'test' stamp: 'rjs 7/12/2020 16:17:57'!
-test02ValidName
+!CreditCardTest methodsFor: 'test' stamp: 'rjs 7/13/2020 20:59:55'!
+test02ValidNumber
 
 	self
-	should: [ CreditCard createWithANumber: '123456789123456' thisDate: (Month month: 2 year: 2020) andThisOwner: 'Pepe'.  ]
+	should: [ CreditCard createWithANumber: '123456789123456' thisDate: (Month month: 2 year: 2020) thisOwner: 'Pepe' thisLimit: 15000 andThisAmount: 0.  ]
 	raise: Error
 	withMessageText: [ CreditCard  InvalidCardErrorDescription ]! !
 
-!CreditCardTest methodsFor: 'test' stamp: 'rjs 7/12/2020 16:18:00'!
+!CreditCardTest methodsFor: 'test' stamp: 'rjs 7/13/2020 21:00:06'!
 test03ValidOwner
 
 	self
-	should: [ CreditCard createWithANumber: '1234567891234567' thisDate: (Month month: 2 year: 2020) andThisOwner: ' '.  ]
+	should: [ CreditCard createWithANumber: '1234567891234567' thisDate: (Month month: 2 year: 2020) thisOwner: ' ' thisLimit: 15000 andThisAmount: 0.  ]
 	raise: Error
 	withMessageText: [ CreditCard  InvalidCardErrorDescription ]
 	! !
 
-!CreditCardTest methodsFor: 'test' stamp: 'rjs 7/12/2020 16:33:32'!
+!CreditCardTest methodsFor: 'test' stamp: 'rjs 7/13/2020 21:00:39'!
 test04isExpired
 
 	| today visa |
 	
-	visa := CreditCard createWithANumber: '1234567891234567' thisDate: (Month month: 2 year: 2020) andThisOwner: 'Pepito'.
+	visa := CreditCard createWithANumber: '1234567891234567' thisDate: (Month month: 2 year: 2020) thisOwner: 'Pepito' thisLimit: 15000 andThisAmount: 0.
 
 	today := DateAndTime now.
 	
@@ -279,6 +304,17 @@ test04isExpired
 
 
 	! !
+
+
+!classDefinition: #MerchantProcessorAdapterTest category: #TusLibros!
+TestCase subclass: #MerchantProcessorAdapterTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'TusLibros'!
+
+!MerchantProcessorAdapterTest methodsFor: 'as yet unclassified' stamp: 'rjs 7/13/2020 20:37:47'!
+test01! !
 
 
 !classDefinition: #Cart category: #TusLibros!
@@ -379,14 +415,15 @@ initializeWith: aCart and: aDate and: aSalesBook
 	salesBook := aSalesBook.! !
 
 
-!Cashier methodsFor: 'actions' stamp: 'rjs 7/12/2020 17:58:19'!
+!Cashier methodsFor: 'actions' stamp: 'rjs 7/13/2020 21:10:21'!
 checkoutWithACard: aCard
 
 	(cart isEmpty) ifTrue: [ ^ self error: self class ErrorDescription ].
 	(aCard isExpired: date)  ifTrue: [ ^ self error: self class expiredCardErrorDescription ].
+	(aCard canSell: cart total) ifFalse: [ ^ self error: self class emptyCardErrorDescription].
+	
 	
 	salesBook add: cart total.
-	
 	^ cart total.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
@@ -399,6 +436,11 @@ Cashier class
 ErrorDescription
 
 	^ ' el carrito esta vacio'! !
+
+!Cashier class methodsFor: 'error' stamp: 'rjs 7/13/2020 21:07:37'!
+emptyCardErrorDescription
+
+	^ ' tarjeta sin saldo suficiente'! !
 
 !Cashier class methodsFor: 'error' stamp: 'rjs 7/12/2020 17:30:30'!
 expiredCardErrorDescription
@@ -415,24 +457,41 @@ createWith: aCart and: aDate and: aSalesBook
 
 !classDefinition: #CreditCard category: #TusLibros!
 Object subclass: #CreditCard
-	instanceVariableNames: 'owner number date'
+	instanceVariableNames: 'owner number date limit amount'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!CreditCard methodsFor: 'initialization' stamp: 'rjs 7/6/2020 19:52:54'!
-initializeWithANumber: aNumber andADate: aDate andAnOwner: anOwner.
+!CreditCard methodsFor: 'initialization' stamp: 'rjs 7/13/2020 20:55:00'!
+initializeWithANumber: aNumber andADate: aDate andAnOwner: anOwner andALimit: aLimit andAnAmount: anAmount.
 
 	number := aNumber.
 	date := aDate.
 	owner := anOwner.
+	limit := aLimit.
+	amount := anAmount.
 	! !
 
+
+!CreditCard methodsFor: 'accesing' stamp: 'rjs 7/13/2020 20:58:57'!
+amount
+
+	^ amount! !
+
+!CreditCard methodsFor: 'accesing' stamp: 'rjs 7/13/2020 21:05:39'!
+canSell: anAmount
+
+	^ (amount + anAmount) < limit! !
 
 !CreditCard methodsFor: 'accesing' stamp: 'rjs 7/6/2020 19:57:48'!
 date
 
 	^ date! !
+
+!CreditCard methodsFor: 'accesing' stamp: 'rjs 7/13/2020 20:58:51'!
+limit
+
+	^ limit! !
 
 !CreditCard methodsFor: 'accesing' stamp: 'rjs 7/6/2020 19:57:34'!
 number
@@ -476,10 +535,18 @@ checkNumber: aNumber.
 	(aNumber size = 16) ifFalse: [ ^ self error: self InvalidCardErrorDescription ]! !
 
 
-!CreditCard class methodsFor: 'initialization' stamp: 'rjs 7/12/2020 16:13:25'!
-createWithANumber: aNumber thisDate: aDate andThisOwner: anOwner.
+!CreditCard class methodsFor: 'initialization' stamp: 'rjs 7/13/2020 20:56:26'!
+createWithANumber: aNumber thisDate: aDate thisOwner: anOwner thisLimit: aLimit andThisAmount: anAmount.
 
 	self checkName: anOwner.
 	self checkNumber: aNumber.
 
-	^ self new initializeWithANumber: aNumber andADate: aDate andAnOwner: anOwner.! !
+	^ self new initializeWithANumber: aNumber andADate: aDate andAnOwner: anOwner andALimit: aLimit andAnAmount: anAmount.! !
+
+
+!classDefinition: #MerchantProcessorAdapter category: #TusLibros!
+Object subclass: #MerchantProcessorAdapter
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'TusLibros'!
