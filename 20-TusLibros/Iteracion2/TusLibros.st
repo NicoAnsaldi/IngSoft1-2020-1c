@@ -258,8 +258,27 @@ autentificateWith: anID and: aPassword
 
 	^ autSystem value: anID value: aPassword.! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/16/2020 20:20:18'!
-test01WrongIDClientCanNotCreateACart
+!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 20:51:37'!
+createInterfaceRest
+
+	^ InterfaceRest with: self aCatalog: objectFactory defaultCatalog aMerchantProcessor: self andASalesBook:  OrderedCollection new.! !
+
+!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 19:58:09'!
+test01CanCreateACartWithValidUserAndPass
+
+	|  interface |
+
+	autSystem := [ :ID :Pass | ].
+	interface := InterfaceRest with: self andACatalog: objectFactory defaultCatalog .
+	
+	self 
+		shouldnt: [ interface createCart: '1234' with: 'hola1234' ]
+		raise: Error - MessageNotUnderstood.
+
+! !
+
+!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 19:20:18'!
+test02CanNotCreateACartWithInvalidUser
 
 	|  interface |
 
@@ -272,8 +291,8 @@ test01WrongIDClientCanNotCreateACart
 		withExceptionDo: [ :anError |
 		self assert: anError messageText = InterfaceRest wrongIDErrorMessage.]! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/16/2020 20:20:22'!
-test02WrongPassCanNotCreateACart
+!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 19:20:25'!
+test03CanNotCreateACartWithInvalidPass
 
 	|  interface |
 
@@ -286,8 +305,8 @@ test02WrongPassCanNotCreateACart
 		withExceptionDo: [ :anError |
 		self assert: anError messageText = InterfaceRest wrongPassErrorMessage.]! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/16/2020 20:20:29'!
-test03CreateCartReturnsAnId
+!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 19:20:30'!
+test04CreateCartReturnsAnId
 	|  interface cartID |
 
 	interface := InterfaceRest with: self andACatalog: objectFactory defaultCatalog .
@@ -302,8 +321,8 @@ test03CreateCartReturnsAnId
 	
 	! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/16/2020 20:20:35'!
-test04CreateManyCartsReturnsManyIds
+!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 19:20:35'!
+test05DifferentCartsReturnDifferentIds
 
 	|  interface user1 user2 user3 |
 
@@ -318,36 +337,196 @@ test04CreateManyCartsReturnsManyIds
 	
 	! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/16/2020 20:21:15'!
-test05AddToCart
+!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 20:05:38'!
+test06CanAddBooksToAValidCart
 
-	|  interface user1ID |
+	|  interface cartID |
 
 	interface := InterfaceRest with: self andACatalog: objectFactory defaultCatalog .
-	user1ID := interface createCart: 'N' with: '123'.
+	cartID := interface createCart: '1234' with: 'hola1234'.
+	
+	interface addBook: objectFactory itemSellByTheStore quantity: 1 cart: cartID.
 	
 	
-	"| cart cashier salesBook creditCard |
+	self assert: ((interface listCart: cartID) includes: objectFactory itemSellByTheStore).
+	self assert: ((interface listCart: cartID) occurrencesOf: objectFactory itemSellByTheStore) equals: 1
+	
 
-	cart := testObjectsFactory createCart.
-	
-	creditCard := testObjectsFactory notExpiredCreditCard.
-	salesBook := OrderedCollection new.
- 	debitBehavior := [ :anAmount :aCreditCard | self error: Cashier creditCardHasNoCreditErrorMessage].
-	
-	cashier:= Cashier 
-		toCheckout: cart 
-		charging: creditCard
-		throught: self
-		on: testObjectsFactory today
-		registeringOn: salesBook.
+
+
+	! !
+
+!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 20:26:07'!
+test07CanNotAddItemToNotCreatedCart
+
+	|  interface  |
+
+	interface := InterfaceRest with: self andACatalog: objectFactory defaultCatalog .
 		
+
 	self 
-		should: [cashier checkOut ]
+		should: [ interface addBook: objectFactory itemSellByTheStore quantity: 1 cart: 3. ]
 		raise: Error - MessageNotUnderstood
 		withExceptionDo: [ :anError |
-			self assert: anError messageText = Cashier creditCardHasNoCreditErrorMessage.
-			self assert: salesBook isEmpty ]"
+		self assert: anError messageText = InterfaceRest CanNotAddBookToNotCreatedCartErrorMessage.]
+	
+
+
+	! !
+
+!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 20:24:16'!
+test08CanNotAddItemNotSellByTheStore
+
+	|  interface  cartID |
+
+	interface := InterfaceRest with: self andACatalog: objectFactory defaultCatalog .
+	cartID := interface createCart: '1234' with: 'hola1234'.
+		
+
+	self 
+		should: [ interface addBook: objectFactory itemNotSellByTheStore quantity: 1 cart: cartID. ]
+		raise: Error - MessageNotUnderstood
+		withExceptionDo: [ :anError |
+		self assert: anError messageText = InterfaceRest CanNotAddBookNotInCatalogToCartErrorMessage.]
+	
+	"es necesario hacer este test?, porque, cart ya tiene el mismo?"
+	
+	
+
+
+	! !
+
+!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 20:55:31'!
+test09CanCheckoutACart
+
+	|  interface cartID |
+
+	interface := InterfaceRest with: self andACatalog: objectFactory defaultCatalog .
+	cartID := interface createCart: '1234' with: 'hola1234'.
+	
+	interface addBook: objectFactory itemSellByTheStore quantity: 1 cart: cartID.
+	"interface checkout: cartID charging: aCreditCard"
+	
+	self assert: ((interface listCart: cartID) isEmpty)
+
+
+	
+	! !
+
+!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 20:32:46'!
+test10CanNotCheckoutWithAnExpiredCard
+
+	
+	! !
+
+!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 20:32:28'!
+test11CanNotCheckoutAnEmptyCart
+
+	
+	! !
+
+!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 19:22:38'!
+test12CanNotCheckoutACartUsingAnInvalidCard
+
+	
+	! !
+
+!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 19:24:22'!
+test13CanNotCheckoutANotCreatedCart
+
+	
+	! !
+
+!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 20:32:58'!
+test14CanNotDoOperationsOnACheckoutACart
+
+	
+	! !
+
+!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 20:35:27'!
+test16ListCartOfAnEmptyCartIsEmpty
+	
+	|  interface cartID |
+
+	interface := InterfaceRest with: self andACatalog: objectFactory defaultCatalog .
+	cartID := interface createCart: '1234' with: 'hola1234'.
+		
+	self assert: ((interface listCart: cartID) isEmpty).
+
+
+	! !
+
+!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 20:37:09'!
+test17CanNotListCartOfNotCreatedCart
+
+	|  interface  |
+
+	interface := InterfaceRest with: self andACatalog: objectFactory defaultCatalog .
+		
+
+	self 
+		should: [ interface listCart: 3. ]
+		raise: Error - MessageNotUnderstood
+		withExceptionDo: [ :anError |
+		self assert: anError messageText = InterfaceRest CanNotListANotCreatedCartErrorMessage.]
+
+	
+	! !
+
+!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 20:40:23'!
+test18ListCartReturnsTheRightNumberOfItems
+
+	|  interface cartID |
+
+	interface := InterfaceRest with: self andACatalog: objectFactory defaultCatalog .
+	cartID := interface createCart: '1234' with: 'hola1234'.
+	
+	interface addBook: objectFactory itemSellByTheStore quantity: 1 cart: cartID.
+	interface addBook: objectFactory itemSellByTheStore quantity: 10 cart: cartID.
+	interface addBook: objectFactory itemSellByTheStore quantity: 12 cart: cartID.
+	
+	
+	self assert: ((interface listCart: cartID) includes: objectFactory itemSellByTheStore).
+	self assert: ((interface listCart: cartID) occurrencesOf: objectFactory itemSellByTheStore) equals: 23
+
+	
+	! !
+
+!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 20:30:57'!
+test20ListPurchasesOfEmptyCartIsEmpty
+
+
+
+	
+	! !
+
+!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 19:46:09'!
+test21CanListPurchasesOfOneUserCart
+
+	
+	! !
+
+!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 19:46:04'!
+test22CanListPurchasesOfManyUserCarts
+
+	
+	! !
+
+!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 19:29:50'!
+test23CanListPurchasesOfTwoDifferentChekoutCarts
+
+	
+	! !
+
+!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 19:46:29'!
+test24CantListPurchasesOfAnInvalidUserName
+
+	
+	! !
+
+!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 19:46:24'!
+test25CantListPurchasesOfAValidUserNameWithInvalidPassword
+
 	
 	! !
 
@@ -394,6 +573,11 @@ initializeAcceptingItemsOf: aCatalog
 	catalog := aCatalog.
 	items := OrderedCollection new.! !
 
+
+!Cart methodsFor: 'queries' stamp: 'rjs 7/20/2020 20:12:11'!
+contents
+
+	^ items copy! !
 
 !Cart methodsFor: 'queries' stamp: 'HernanWilkinson 6/17/2013 17:45'!
 occurrencesOf: anItem
@@ -566,37 +750,80 @@ expiringOn: aMonth
 
 !classDefinition: #InterfaceRest category: #TusLibros!
 Object subclass: #InterfaceRest
-	instanceVariableNames: 'id autentificationSystem carts catalog'
+	instanceVariableNames: 'id autentificationSystem carts catalog merchant salesBook'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!InterfaceRest methodsFor: 'initialization' stamp: 'rjs 7/16/2020 20:17:17'!
-initializeWith: anAutentificationSystem and: aCatalog
+!InterfaceRest methodsFor: 'initialization' stamp: 'rjs 7/20/2020 20:54:09'!
+initializeWith: anAutentificationSystem and: aCatalog aMerchantProcessor: aMP andASalesBook:  aSalesBook
 
 	autentificationSystem := anAutentificationSystem.
 	id := 0.
 	carts := Dictionary new.
-	catalog := aCatalog.! !
+	catalog := aCatalog.
+	merchant :=aMP.
+	salesBook := aSalesBook.! !
 
 
-!InterfaceRest methodsFor: 'as yet unclassified' stamp: 'rjs 7/16/2020 20:15:48'!
+!InterfaceRest methodsFor: 'as yet unclassified' stamp: 'rjs 7/20/2020 20:29:57'!
+addBook: aBook quantity: aQuantity cart: aCartID
+
+	| cart |
+	
+	(catalog includesKey: aBook) ifFalse: [^ self error: self class CanNotAddBookNotInCatalogToCartErrorMessage ].
+	cart := carts at: aCartID ifAbsent: [ ^ self error: self class CanNotAddBookToNotCreatedCartErrorMessage ].
+		
+	cart add: aQuantity of: aBook.
+
+	
+	! !
+
+!InterfaceRest methodsFor: 'as yet unclassified' stamp: 'rjs 7/20/2020 20:55:44'!
+checkout: aCart charging: aCreditCard
+
+! !
+
+!InterfaceRest methodsFor: 'as yet unclassified' stamp: 'rjs 7/20/2020 20:08:51'!
 createCart: anID with: aPassword
 	
+	| cart |
+	
 	autentificationSystem autentificateWith: anID and: aPassword.
-		
 	
 	id := id + 1.
+	
+	cart := Cart acceptingItemsOf: catalog.
+	carts at: id put: cart.
 	
 	^ id.
 
 	 ! !
+
+!InterfaceRest methodsFor: 'as yet unclassified' stamp: 'rjs 7/20/2020 20:38:40'!
+listCart: aCartID
+	
+	^ (carts at: aCartID ifAbsent: [ ^ self error: self class CanNotListANotCreatedCartErrorMessage ]) contents.
+
+! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'InterfaceRest class' category: #TusLibros!
 InterfaceRest class
 	instanceVariableNames: ''!
+
+!InterfaceRest class methodsFor: 'error' stamp: 'rjs 7/20/2020 20:20:43'!
+CanNotAddBookNotInCatalogToCartErrorMessage
+	^ ' No podes agregar un libro que no esta en el catalog a un changuito '! !
+
+!InterfaceRest class methodsFor: 'error' stamp: 'rjs 7/20/2020 20:17:06'!
+CanNotAddBookToNotCreatedCartErrorMessage
+	^ ' No podes agregar un libro a un changuito no creado '! !
+
+!InterfaceRest class methodsFor: 'error' stamp: 'rjs 7/20/2020 20:37:35'!
+CanNotListANotCreatedCartErrorMessage
+	^ ' No podes listar un carrito no creado '! !
 
 !InterfaceRest class methodsFor: 'error' stamp: 'rjs 7/16/2020 19:00:52'!
 wrongIDErrorMessage
@@ -607,10 +834,18 @@ wrongPassErrorMessage
 	^ ' Password erronea '! !
 
 
-!InterfaceRest class methodsFor: 'initialization' stamp: 'rjs 7/16/2020 20:16:50'!
-with: anAutentificationSystem andACatalog: aCatalog
+!InterfaceRest class methodsFor: 'initialization' stamp: 'rjs 7/20/2020 20:52:44'!
+with: anAutentificationSystem aCatalog: aCatalog aMerchantProcessor: aMP andASalesBook:  aSalesBook
 
-	^ self new initializeWith: anAutentificationSystem and: aCatalog .! !
+	^ self new initializeWith: anAutentificationSystem and: aCatalog aMerchantProcessor: aMP andASalesBook:  aSalesBook.! !
+
+
+!classDefinition: #MerchantProcessor category: #TusLibros!
+Object subclass: #MerchantProcessor
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'TusLibros'!
 
 
 !classDefinition: #Sale category: #TusLibros!
