@@ -246,6 +246,52 @@ debit: anAmount from: aCreditCard
 	^debitBehavior value: anAmount value: aCreditCard ! !
 
 
+!classDefinition: #CreditCardTest category: #TusLibros!
+TestCase subclass: #CreditCardTest
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'TusLibros'!
+
+!CreditCardTest methodsFor: 'as yet unclassified' stamp: 'na 7/21/2020 14:42:29'!
+test01CreateCreditCard
+
+	| visa |
+
+	visa := CreditCard createWithANumber: '1234567891234567' thisDate: (Month month: 2 year: 2020) thisOwner: 'Pepito'.
+
+	self assert: visa number equals: '1234567891234567'.
+	self assert: visa date equals: (Month month: 2 year: 2020).
+	self assert: visa owner equals: 'Pepito'! !
+
+!CreditCardTest methodsFor: 'as yet unclassified' stamp: 'na 7/21/2020 14:42:52'!
+test02ValidNumber
+
+	self
+	should: [ CreditCard createWithANumber: '123456789123456' thisDate: (Month month: 2 year: 2020) thisOwner: 'Pepe' .]
+	raise: Error
+	withMessageText: [ CreditCard  InvalidCardErrorDescription ]! !
+
+!CreditCardTest methodsFor: 'as yet unclassified' stamp: 'na 7/21/2020 14:43:04'!
+test03ValidOwner
+
+	self
+	should: [ CreditCard createWithANumber: '1234567891234567' thisDate: (Month month: 2 year: 2020) thisOwner: ' ' ]
+	raise: Error
+	withMessageText: [ CreditCard  InvalidCardErrorDescription ]! !
+
+!CreditCardTest methodsFor: 'as yet unclassified' stamp: 'na 7/21/2020 14:54:01'!
+test04isExpired
+
+	| today visa |
+	
+	visa := CreditCard createWithANumber: '1234567891234567' thisDate: (Month month: 2 year: 2020) thisOwner: 'Pepito'.
+
+	today := DateAndTime now.
+	
+	self assert: (visa isExpiredOn: today)! !
+
+
 !classDefinition: #InterfaceRestTest category: #TusLibros!
 TestCase subclass: #InterfaceRestTest
 	instanceVariableNames: 'testObjectsFactory debitBehavior autSystem objectFactory'
@@ -258,18 +304,33 @@ autentificateWith: anID and: aPassword
 
 	^ autSystem value: anID value: aPassword.! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 20:51:37'!
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 13:58:42'!
+autentificationSystem
+
+	^self! !
+
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 13:58:29'!
 createInterfaceRest
 
-	^ InterfaceRest with: self aCatalog: objectFactory defaultCatalog aMerchantProcessor: self andASalesBook:  OrderedCollection new.! !
+	^ InterfaceRest with: self autentificationSystem aCatalog: objectFactory defaultCatalog aMerchantProcessor: self merchantProcessor andASalesBook:  OrderedCollection new.! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 19:58:09'!
-test01CanCreateACartWithValidUserAndPass
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 16:41:35'!
+creditCardDate
+
+	^(Month month: (DateAndTime now) monthIndex year: (DateAndTime now) yearNumber + 1)! !
+
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 13:58:59'!
+merchantProcessor
+
+	^self! !
+
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 14:24:24'!
+test01CanCreateACartWithAValidUserAndAValidPass
 
 	|  interface |
 
 	autSystem := [ :ID :Pass | ].
-	interface := InterfaceRest with: self andACatalog: objectFactory defaultCatalog .
+	interface := self createInterfaceRest.
 	
 	self 
 		shouldnt: [ interface createCart: '1234' with: 'hola1234' ]
@@ -277,13 +338,13 @@ test01CanCreateACartWithValidUserAndPass
 
 ! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 19:20:18'!
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 14:01:55'!
 test02CanNotCreateACartWithInvalidUser
 
 	|  interface |
 
 	autSystem := [ :ID :Pass | ^ self error: InterfaceRest wrongIDErrorMessage].
-	interface := InterfaceRest with: self andACatalog: objectFactory defaultCatalog .
+	interface := self createInterfaceRest.
 	
 	self 
 		should: [ interface createCart: '1234' with: 'hola1234' ]
@@ -291,13 +352,13 @@ test02CanNotCreateACartWithInvalidUser
 		withExceptionDo: [ :anError |
 		self assert: anError messageText = InterfaceRest wrongIDErrorMessage.]! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 19:20:25'!
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 14:02:03'!
 test03CanNotCreateACartWithInvalidPass
 
 	|  interface |
 
 	autSystem := [ :ID :Pass | ^ self error: InterfaceRest wrongPassErrorMessage].
-	interface := InterfaceRest with: self andACatalog: objectFactory defaultCatalog .
+	interface := self createInterfaceRest .
 	
 	self 
 		should: [ interface createCart: '1234' with: 'hola1234' ]
@@ -305,44 +366,44 @@ test03CanNotCreateACartWithInvalidPass
 		withExceptionDo: [ :anError |
 		self assert: anError messageText = InterfaceRest wrongPassErrorMessage.]! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 19:20:30'!
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 14:26:54'!
 test04CreateCartReturnsAnId
-	|  interface cartID |
+	|  interface cartId|
 
-	interface := InterfaceRest with: self andACatalog: objectFactory defaultCatalog .
-	cartID := interface createCart: '1234' with: 'hola1234'.
+	interface := self createInterfaceRest.
 	
 	self 
-		shouldnt: [ cartID := interface createCart: '1234' with: 'hola1234' ]
+		shouldnt: [cartId :=interface createCart: '1234' with: 'hola1234' ]
 		raise: Error - MessageNotUnderstood.
 
+	self assert: (cartId = nil) not.
 	
 	
 	
 	! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 19:20:35'!
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 14:27:53'!
 test05DifferentCartsReturnDifferentIds
 
-	|  interface user1 user2 user3 |
+	|  interface cartId1 cartId2 cartId3 |
 
-	interface := InterfaceRest with: self andACatalog: objectFactory defaultCatalog .
-	user1 := interface createCart: 'L' with: '678'.
-	user2 := interface createCart: 'N' with: '123'.
-	user3 := interface createCart: 'R' with: '454'.
+	interface := self createInterfaceRest.
+	cartId1 := interface createCart: 'L' with: '678'.
+	cartId2 := interface createCart: 'N' with: '123'.
+	cartId3 := interface createCart: 'R' with: '454'.
 	
-	self assert: ((user1 = user2) not).
-	self assert: ((user2 = user3) not).
-	self assert: ((user1 = user3) not).
+	self assert: ((cartId1 = cartId2) not).
+	self assert: ((cartId2 = cartId3) not).
+	self assert: ((cartId1 = cartId3) not).
 	
 	! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 20:05:38'!
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 14:05:19'!
 test06CanAddBooksToAValidCart
 
 	|  interface cartID |
 
-	interface := InterfaceRest with: self andACatalog: objectFactory defaultCatalog .
+	interface := self createInterfaceRest.
 	cartID := interface createCart: '1234' with: 'hola1234'.
 	
 	interface addBook: objectFactory itemSellByTheStore quantity: 1 cart: cartID.
@@ -356,12 +417,12 @@ test06CanAddBooksToAValidCart
 
 	! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 20:26:07'!
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 14:05:29'!
 test07CanNotAddItemToNotCreatedCart
 
 	|  interface  |
 
-	interface := InterfaceRest with: self andACatalog: objectFactory defaultCatalog .
+	interface := self createInterfaceRest .
 		
 
 	self 
@@ -374,12 +435,12 @@ test07CanNotAddItemToNotCreatedCart
 
 	! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 20:24:16'!
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 14:05:39'!
 test08CanNotAddItemNotSellByTheStore
 
 	|  interface  cartID |
 
-	interface := InterfaceRest with: self andACatalog: objectFactory defaultCatalog .
+	interface := self createInterfaceRest .
 	cartID := interface createCart: '1234' with: 'hola1234'.
 		
 
@@ -396,59 +457,12 @@ test08CanNotAddItemNotSellByTheStore
 
 	! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 20:55:31'!
-test09CanCheckoutACart
-
-	|  interface cartID |
-
-	interface := InterfaceRest with: self andACatalog: objectFactory defaultCatalog .
-	cartID := interface createCart: '1234' with: 'hola1234'.
-	
-	interface addBook: objectFactory itemSellByTheStore quantity: 1 cart: cartID.
-	"interface checkout: cartID charging: aCreditCard"
-	
-	self assert: ((interface listCart: cartID) isEmpty)
-
-
-	
-	! !
-
-!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 20:32:46'!
-test10CanNotCheckoutWithAnExpiredCard
-
-	
-	! !
-
-!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 20:32:28'!
-test11CanNotCheckoutAnEmptyCart
-
-	
-	! !
-
-!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 19:22:38'!
-test12CanNotCheckoutACartUsingAnInvalidCard
-
-	
-	! !
-
-!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 19:24:22'!
-test13CanNotCheckoutANotCreatedCart
-
-	
-	! !
-
-!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 20:32:58'!
-test14CanNotDoOperationsOnACheckoutACart
-
-	
-	! !
-
-!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 20:35:27'!
-test16ListCartOfAnEmptyCartIsEmpty
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 14:29:05'!
+test09ListCartOfAnEmptyCartIsEmpty
 	
 	|  interface cartID |
 
-	interface := InterfaceRest with: self andACatalog: objectFactory defaultCatalog .
+	interface := self createInterfaceRest .
 	cartID := interface createCart: '1234' with: 'hola1234'.
 		
 	self assert: ((interface listCart: cartID) isEmpty).
@@ -456,12 +470,12 @@ test16ListCartOfAnEmptyCartIsEmpty
 
 	! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 20:37:09'!
-test17CanNotListCartOfNotCreatedCart
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 14:29:27'!
+test10CanNotListCartOfNotCreatedCart
 
 	|  interface  |
 
-	interface := InterfaceRest with: self andACatalog: objectFactory defaultCatalog .
+	interface := self createInterfaceRest .
 		
 
 	self 
@@ -473,12 +487,12 @@ test17CanNotListCartOfNotCreatedCart
 	
 	! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 20:40:23'!
-test18ListCartReturnsTheRightNumberOfItems
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 14:30:09'!
+test11ListCartReturnsTheRightNumberOfItems
 
 	|  interface cartID |
 
-	interface := InterfaceRest with: self andACatalog: objectFactory defaultCatalog .
+	interface := self createInterfaceRest .
 	cartID := interface createCart: '1234' with: 'hola1234'.
 	
 	interface addBook: objectFactory itemSellByTheStore quantity: 1 cart: cartID.
@@ -488,6 +502,56 @@ test18ListCartReturnsTheRightNumberOfItems
 	
 	self assert: ((interface listCart: cartID) includes: objectFactory itemSellByTheStore).
 	self assert: ((interface listCart: cartID) occurrencesOf: objectFactory itemSellByTheStore) equals: 23
+
+	
+	! !
+
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 16:40:09'!
+test12CanCheckoutACart
+
+	|  interface cartID |
+
+	interface := self createInterfaceRest .
+	cartID := interface createCart: '1234' with: 'hola1234'.
+	
+	interface addBook: objectFactory itemSellByTheStore quantity: 1 cart: cartID.
+	interface checkout: cartID 
+				creditCardNumber: self validCreditCardNumber 
+				withExpiredDate: self creditCardDate 
+				wihtOwner: self creditCardOwner 
+				on: DateAndTime now.
+	
+	
+	
+
+
+	
+	! !
+
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 16:50:53'!
+test13CanNotCheckoutWithAnExpiredCard
+
+	'Es necesario?, lo resuelve el cashier'! !
+
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 16:51:53'!
+test14CanNotCheckoutAnEmptyCart
+
+	! !
+
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 14:36:21'!
+test15CanNotCheckoutACartUsingAnInvalidCard
+
+	
+	! !
+
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 14:36:32'!
+test16CanNotCheckoutANotCreatedCart
+
+	
+	! !
+
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 14:36:44'!
+test17CanNotDoOperationsOnACheckoutACart
 
 	
 	! !
@@ -530,6 +594,16 @@ test25CantListPurchasesOfAValidUserNameWithInvalidPassword
 	
 	! !
 
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 14:49:01'!
+validCreditCardNumber
+
+	^'1234567'! !
+
+
+!InterfaceRestTest methodsFor: 'setUp' stamp: 'na 7/21/2020 14:50:02'!
+creditCardOwner
+
+	^'Pepito'! !
 
 !InterfaceRestTest methodsFor: 'setUp' stamp: 'rjs 7/16/2020 20:19:50'!
 setUp
@@ -687,7 +761,7 @@ assertIsNotEmpty: aCart
 	
 	aCart isEmpty ifTrue: [self error: self cartCanNotBeEmptyErrorMessage ]! !
 
-!Cashier class methodsFor: 'assertions' stamp: 'HernanWilkinson 6/17/2013 18:23'!
+!Cashier class methodsFor: 'assertions' stamp: 'na 7/21/2020 14:54:01'!
 assertIsNotExpired: aCreditCard on: aDate
 	
 	(aCreditCard isExpiredOn: aDate) ifTrue: [ self error: self canNotChargeAnExpiredCreditCardErrorMessage ]! !
@@ -720,21 +794,39 @@ creditCardHasNoCreditErrorMessage
 
 !classDefinition: #CreditCard category: #TusLibros!
 Object subclass: #CreditCard
-	instanceVariableNames: 'expiration'
+	instanceVariableNames: 'owner number date limit amount'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!CreditCard methodsFor: 'testing' stamp: 'HernanWilkinson 6/17/2013 18:39'!
-isExpiredOn: aDate 
-	
-	^expiration start < (Month month: aDate monthIndex year: aDate yearNumber) start ! !
+!CreditCard methodsFor: 'testing' stamp: 'na 7/21/2020 14:54:01'!
+isExpiredOn: today
+
+	^  (today yearNumber > date yearNumber) or: [ (today yearNumber = date yearNumber) and:[ (today monthIndex > date monthIndex) ] ]! !
 
 
-!CreditCard methodsFor: 'initialization' stamp: 'HernanWilkinson 6/17/2013 18:38'!
-initializeExpiringOn: aMonth 
-	
-	expiration := aMonth ! !
+!CreditCard methodsFor: 'accesing' stamp: 'na 7/21/2020 14:44:27'!
+date
+
+	^ date! !
+
+!CreditCard methodsFor: 'accesing' stamp: 'na 7/21/2020 14:44:38'!
+number
+
+	^ number! !
+
+!CreditCard methodsFor: 'accesing' stamp: 'na 7/21/2020 14:45:05'!
+owner
+
+	^ owner! !
+
+
+!CreditCard methodsFor: 'initialization' stamp: 'na 7/21/2020 14:44:14'!
+initializeWithANumber: aNumber andADate: aDate andAnOwner: anOwner
+
+	number := aNumber.
+	date := aDate.
+	owner := anOwner.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -742,10 +834,30 @@ initializeExpiringOn: aMonth
 CreditCard class
 	instanceVariableNames: ''!
 
-!CreditCard class methodsFor: 'instance creation' stamp: 'HernanWilkinson 6/17/2013 18:38'!
-expiringOn: aMonth 
-	
-	^self new initializeExpiringOn: aMonth! !
+!CreditCard class methodsFor: 'instance creation' stamp: 'na 7/21/2020 14:46:56'!
+createWithANumber: aNumber thisDate: aDate thisOwner: anOwner
+
+	self checkName: anOwner.
+	self checkNumber: aNumber.
+
+	^ self new initializeWithANumber: aNumber andADate: aDate andAnOwner: anOwner.! !
+
+
+!CreditCard class methodsFor: 'assertions' stamp: 'na 7/21/2020 14:46:33'!
+checkName: anOwner
+
+	(anOwner = ' ' ) ifTrue: [ ^ self error: self InvalidCardErrorDescription ]! !
+
+!CreditCard class methodsFor: 'assertions' stamp: 'na 7/21/2020 14:46:43'!
+checkNumber: aNumber.
+
+	(aNumber size = 16) ifFalse: [ ^ self error: self InvalidCardErrorDescription ]! !
+
+
+!CreditCard class methodsFor: 'error' stamp: 'na 7/21/2020 14:46:04'!
+InvalidCardErrorDescription
+
+ 	^ 'Tarjeta invalida'! !
 
 
 !classDefinition: #InterfaceRest category: #TusLibros!
@@ -779,10 +891,15 @@ addBook: aBook quantity: aQuantity cart: aCartID
 	
 	! !
 
-!InterfaceRest methodsFor: 'as yet unclassified' stamp: 'rjs 7/20/2020 20:55:44'!
-checkout: aCart charging: aCreditCard
-
-! !
+!InterfaceRest methodsFor: 'as yet unclassified' stamp: 'na 7/21/2020 16:42:57'!
+checkout: aCartID creditCardNumber: aCreditCardNumber withExpiredDate: aCreditCardExpiredDate wihtOwner: aCreditCardOwner on: aDate
+	
+	|cart creditCard|
+	
+	cart := carts at: aCartID.
+	creditCard := CreditCard createWithANumber: aCreditCardNumber thisDate: aCreditCardExpiredDate thisOwner: aCreditCardOwner.
+	
+	^Cashier toCheckout: cart charging: creditCard throught: merchant on: aDate registeringOn: salesBook.! !
 
 !InterfaceRest methodsFor: 'as yet unclassified' stamp: 'rjs 7/20/2020 20:08:51'!
 createCart: anID with: aPassword
@@ -915,15 +1032,16 @@ defaultCatalog
 		yourself ! !
 
 
-!StoreTestObjectsFactory methodsFor: 'credit card' stamp: 'HernanWilkinson 6/17/2013 18:37'!
+!StoreTestObjectsFactory methodsFor: 'credit card' stamp: 'na 7/21/2020 16:26:25'!
 expiredCreditCard
 	
-	^CreditCard expiringOn: (Month month: today monthIndex year: today yearNumber - 1)! !
+	^CreditCard createWithANumber: '1234567891234567' thisDate: (Month month: today monthIndex year: today yearNumber - 1) thisOwner: 'Pepito'! !
 
-!StoreTestObjectsFactory methodsFor: 'credit card' stamp: 'HernanWilkinson 6/17/2013 18:36'!
+!StoreTestObjectsFactory methodsFor: 'credit card' stamp: 'na 7/21/2020 16:26:31'!
 notExpiredCreditCard
 	
-	^CreditCard expiringOn: (Month month: today monthIndex year: today yearNumber + 1)! !
+	^CreditCard createWithANumber: '1234567891234567' thisDate: (Month month: today monthIndex year: today yearNumber + 1) thisOwner: 'Pepito'
+	! !
 
 
 !StoreTestObjectsFactory methodsFor: 'initialization' stamp: 'HernanWilkinson 6/17/2013 18:37'!
