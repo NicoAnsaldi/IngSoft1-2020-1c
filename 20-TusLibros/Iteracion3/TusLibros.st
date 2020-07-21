@@ -91,6 +91,20 @@ test08CartRemembersTheNumberOfAddedItems
 	cart add: 2 of: testObjectsFactory itemSellByTheStore.
 	self assert: (cart occurrencesOf: testObjectsFactory itemSellByTheStore) = 2! !
 
+!CartTest methodsFor: 'tests' stamp: 'rjs 7/21/2020 18:31:37'!
+test09CartRemembersCorrectlyMultipleTimesAddedItem
+
+	| cart |
+	
+	cart := testObjectsFactory createCart.
+	
+	cart add: 2 of: testObjectsFactory itemSellByTheStore.
+	cart add: 2 of: testObjectsFactory itemSellByTheStore.
+	cart add: 2 of: testObjectsFactory itemSellByTheStore.
+	cart add: 2 of: testObjectsFactory itemSellByTheStore.
+	
+	self assert: (cart occurrencesOf: testObjectsFactory itemSellByTheStore) = 8! !
+
 
 !CartTest methodsFor: 'setup' stamp: 'HernanWilkinson 6/17/2013 18:09'!
 setUp 
@@ -319,22 +333,26 @@ creditCardDate
 
 	^(Month month: (DateAndTime now) monthIndex year: (DateAndTime now) yearNumber + 1)! !
 
+!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/21/2020 19:25:53'!
+debit: anAmount from: aCreditCard 
+
+	! !
+
 !InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 13:58:59'!
 merchantProcessor
 
 	^self! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 14:24:24'!
+!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/21/2020 17:37:43'!
 test01CanCreateACartWithAValidUserAndAValidPass
 
-	|  interface |
+	|  interface cartID |
 
 	autSystem := [ :ID :Pass | ].
 	interface := self createInterfaceRest.
+	cartID := interface createCart: '1234' with: 'hola1234'.
 	
-	self 
-		shouldnt: [ interface createCart: '1234' with: 'hola1234' ]
-		raise: Error - MessageNotUnderstood.
+	self assert: ((interface listCart: cartID) isEmpty)
 
 ! !
 
@@ -398,15 +416,17 @@ test05DifferentCartsReturnDifferentIds
 	
 	! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 14:05:19'!
+!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/21/2020 19:23:22'!
 test06CanAddBooksToAValidCart
 
-	|  interface cartID |
+	|  interface cartID collection |
 
 	interface := self createInterfaceRest.
 	cartID := interface createCart: '1234' with: 'hola1234'.
 	
 	interface addBook: objectFactory itemSellByTheStore quantity: 1 cart: cartID.
+	
+	collection := interface listCart: cartID.
 	
 	
 	self assert: ((interface listCart: cartID) includes: objectFactory itemSellByTheStore).
@@ -506,23 +526,25 @@ test11ListCartReturnsTheRightNumberOfItems
 	
 	! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 16:40:09'!
+!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/21/2020 20:20:21'!
 test12CanCheckoutACart
 
-	|  interface cartID |
+	|  interface cartID purchases|
 
 	interface := self createInterfaceRest .
-	cartID := interface createCart: '1234' with: 'hola1234'.
-	
+	cartID := interface createCart: 'Pepito' with: 'hola1234'.
 	interface addBook: objectFactory itemSellByTheStore quantity: 1 cart: cartID.
+	
 	interface checkout: cartID 
 				creditCardNumber: self validCreditCardNumber 
 				withExpiredDate: self creditCardDate 
-				wihtOwner: self creditCardOwner 
-				on: DateAndTime now.
+				wihtOwner: self creditCardOwner.
+				
+	purchases := interface listPurchasesFromUser: 'Pepito' andPass: 'hola1234'.
 	
 	
-	
+	self assert: (purchases includesKey: objectFactory itemSellByTheStore).
+	self assert: (purchases at: objectFactory itemSellByTheStore) equals: 10.
 
 
 	
@@ -556,8 +578,11 @@ test17CanNotDoOperationsOnACheckoutACart
 	
 	! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 20:30:57'!
+!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/21/2020 20:21:26'!
 test20ListPurchasesOfEmptyCartIsEmpty
+
+
+	
 
 
 
@@ -594,10 +619,10 @@ test25CantListPurchasesOfAValidUserNameWithInvalidPassword
 	
 	! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 14:49:01'!
+!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/21/2020 17:41:15'!
 validCreditCardNumber
 
-	^'1234567'! !
+	^'1234567891234567'! !
 
 
 !InterfaceRestTest methodsFor: 'setUp' stamp: 'na 7/21/2020 14:50:02'!
@@ -641,28 +666,34 @@ assertIsValidQuantity: aQuantity
 	aQuantity strictlyPositive ifFalse: [ self error: self invalidQuantityErrorMessage ]! !
 
 
-!Cart methodsFor: 'initialization' stamp: 'HernanWilkinson 6/17/2013 17:48'!
+!Cart methodsFor: 'initialization' stamp: 'rjs 7/21/2020 18:25:01'!
 initializeAcceptingItemsOf: aCatalog
 
 	catalog := aCatalog.
-	items := OrderedCollection new.! !
+	items := Dictionary new.! !
 
 
-!Cart methodsFor: 'queries' stamp: 'rjs 7/20/2020 20:12:11'!
+!Cart methodsFor: 'queries' stamp: 'rjs 7/21/2020 19:24:45'!
 contents
 
-	^ items copy! !
+	| collection |
+	
+	collection := OrderedCollection  new.
+		
+	items keysDo: [ :aBook | 1 to: (items at: aBook) do: [ :each | collection add: aBook ] ].
+		
+	^ collection! !
 
-!Cart methodsFor: 'queries' stamp: 'HernanWilkinson 6/17/2013 17:45'!
+!Cart methodsFor: 'queries' stamp: 'rjs 7/21/2020 18:28:29'!
 occurrencesOf: anItem
+	
+	 ^ items at: anItem ifAbsent: [ ^0 ]! !
 
-	^items occurrencesOf: anItem  ! !
 
-
-!Cart methodsFor: 'testing' stamp: 'HernanWilkinson 6/17/2013 17:44'!
+!Cart methodsFor: 'testing' stamp: 'rjs 7/21/2020 18:29:11'!
 includes: anItem
 
-	^items includes: anItem ! !
+	^items includesKey: anItem ! !
 
 !Cart methodsFor: 'testing' stamp: 'HernanWilkinson 6/17/2013 17:44'!
 isEmpty
@@ -670,10 +701,10 @@ isEmpty
 	^items isEmpty ! !
 
 
-!Cart methodsFor: 'total' stamp: 'HernanWilkinson 6/17/2013 19:09'!
+!Cart methodsFor: 'total' stamp: 'rjs 7/21/2020 18:42:47'!
 total
 
-	^ items sum: [ :anItem | catalog at: anItem ]! !
+	^ (items keys) inject: 0 into: [ :sum :each | sum + ((items at: each) * (catalog at: each)) ].! !
 
 
 !Cart methodsFor: 'adding' stamp: 'HernanWilkinson 6/17/2013 17:44'!
@@ -681,13 +712,19 @@ add: anItem
 
 	^ self add: 1 of: anItem ! !
 
-!Cart methodsFor: 'adding' stamp: 'HernanWilkinson 6/17/2013 17:51'!
+!Cart methodsFor: 'adding' stamp: 'rjs 7/21/2020 18:28:37'!
 add: aQuantity of: anItem
 
 	self assertIsValidQuantity: aQuantity.
 	self assertIsValidItem: anItem.
 
-	1 to: aQuantity do: [ :aNumber | items add: anItem ]! !
+	items at: anItem put: (self occurrencesOf: anItem) + aQuantity! !
+
+
+!Cart methodsFor: 'as yet unclassified' stamp: 'rjs 7/21/2020 18:55:42'!
+createSaleRow: aBlock
+
+	items keysDo: [ :each | aBlock value: each value: (items at: each)  value: (items at: each)*(catalog at: each)]! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -703,7 +740,7 @@ acceptingItemsOf: aCatalog
 
 !classDefinition: #Cashier category: #TusLibros!
 Object subclass: #Cashier
-	instanceVariableNames: 'cart salesBook merchantProcessor creditCard total'
+	instanceVariableNames: 'cart salesBook merchantProcessor creditCard total sale'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
@@ -714,26 +751,22 @@ calculateTotal
 	total := cart total.
 	! !
 
-!Cashier methodsFor: 'checkout - private' stamp: 'HernanWilkinson 6/17/2013 19:07'!
-createSale
-
-	^ Sale of: total
-! !
-
 !Cashier methodsFor: 'checkout - private' stamp: 'HernanWilkinson 6/17/2013 19:06'!
 debitTotal
 
 	merchantProcessor debit: total from: creditCard.
 	! !
 
-!Cashier methodsFor: 'checkout - private' stamp: 'HernanWilkinson 6/17/2013 19:06'!
+!Cashier methodsFor: 'checkout - private' stamp: 'rjs 7/21/2020 19:00:21'!
 registerSale
 
-	salesBook add: self createSale! !
+	salesBook add: sale! !
 
 
-!Cashier methodsFor: 'checkout' stamp: 'HernanWilkinson 6/17/2013 19:06'!
+!Cashier methodsFor: 'checkout' stamp: 'rjs 7/21/2020 19:00:41'!
 checkOut
+
+	self createSale.
 
 	self calculateTotal.
 	self debitTotal.
@@ -749,6 +782,18 @@ initializeToCheckout: aCart charging: aCreditCard throught: aMerchantProcessor r
 	creditCard := aCreditCard.
 	merchantProcessor := aMerchantProcessor.
 	salesBook := aSalesBook! !
+
+
+!Cashier methodsFor: 'as yet unclassified' stamp: 'rjs 7/21/2020 18:59:57'!
+createSale
+
+	| items |
+
+	items := OrderedCollection  new.
+	
+	cart createSaleRow: [:anItem :aQuantity :aTotal | items add: (SaleRow item: anItem quantity: aQuantity total: aTotal) ].
+	
+	sale := Sale withCostumer: creditCard owner andItems: items.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -867,14 +912,14 @@ Object subclass: #InterfaceRest
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!InterfaceRest methodsFor: 'initialization' stamp: 'rjs 7/20/2020 20:54:09'!
+!InterfaceRest methodsFor: 'initialization' stamp: 'rjs 7/21/2020 17:43:45'!
 initializeWith: anAutentificationSystem and: aCatalog aMerchantProcessor: aMP andASalesBook:  aSalesBook
 
 	autentificationSystem := anAutentificationSystem.
 	id := 0.
 	carts := Dictionary new.
 	catalog := aCatalog.
-	merchant :=aMP.
+	merchant := aMP.
 	salesBook := aSalesBook.! !
 
 
@@ -891,15 +936,17 @@ addBook: aBook quantity: aQuantity cart: aCartID
 	
 	! !
 
-!InterfaceRest methodsFor: 'as yet unclassified' stamp: 'na 7/21/2020 16:42:57'!
-checkout: aCartID creditCardNumber: aCreditCardNumber withExpiredDate: aCreditCardExpiredDate wihtOwner: aCreditCardOwner on: aDate
+!InterfaceRest methodsFor: 'as yet unclassified' stamp: 'rjs 7/21/2020 17:47:14'!
+checkout: aCartID creditCardNumber: aCreditCardNumber withExpiredDate: aCreditCardExpiredDate wihtOwner: aCreditCardOwner
 	
-	|cart creditCard|
+	|cart creditCard cashier|
 	
 	cart := carts at: aCartID.
 	creditCard := CreditCard createWithANumber: aCreditCardNumber thisDate: aCreditCardExpiredDate thisOwner: aCreditCardOwner.
 	
-	^Cashier toCheckout: cart charging: creditCard throught: merchant on: aDate registeringOn: salesBook.! !
+	cashier := Cashier toCheckout: cart charging: creditCard throught: merchant on: (DateAndTime now) registeringOn: salesBook.
+	
+	^ cashier checkOut ! !
 
 !InterfaceRest methodsFor: 'as yet unclassified' stamp: 'rjs 7/20/2020 20:08:51'!
 createCart: anID with: aPassword
@@ -917,12 +964,35 @@ createCart: anID with: aPassword
 
 	 ! !
 
+!InterfaceRest methodsFor: 'as yet unclassified' stamp: 'rjs 7/21/2020 20:13:32'!
+defineResumeIn: book with: anItem and: aTotal
+
+	| newTotal |
+	
+	newTotal  := (book at: anItem ifAbsent: [0] ) + aTotal.
+	book at: anItem put: newTotal.! !
+
 !InterfaceRest methodsFor: 'as yet unclassified' stamp: 'rjs 7/20/2020 20:38:40'!
 listCart: aCartID
 	
 	^ (carts at: aCartID ifAbsent: [ ^ self error: self class CanNotListANotCreatedCartErrorMessage ]) contents.
 
 ! !
+
+!InterfaceRest methodsFor: 'as yet unclassified' stamp: 'rjs 7/21/2020 20:16:38'!
+listPurchasesFromUser: anUser andPass: aPassWord
+
+	" libro1 cantidad1 libron cantidadn TOTAL"
+
+	| collection book |
+	
+	collection := salesBook select: [ :each | each belongsTo: anUser ].
+	
+	book := Dictionary  new.
+	
+	collection do: [ :aSale | aSale createListOfPurchases: [:anItem :aTotal | self defineResumeIn: book with: anItem and: aTotal ] ].
+	
+	^ book! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -967,21 +1037,42 @@ Object subclass: #MerchantProcessor
 
 !classDefinition: #Sale category: #TusLibros!
 Object subclass: #Sale
-	instanceVariableNames: 'total'
+	instanceVariableNames: 'owner items'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!Sale methodsFor: 'total' stamp: 'HernanWilkinson 6/17/2013 18:48'!
+!Sale methodsFor: 'total' stamp: 'rjs 7/21/2020 19:03:13'!
 total
 	
-	^ total! !
+	^ items inject: 0 into: [:sum :each | sum + each total].! !
 
 
-!Sale methodsFor: 'initialization' stamp: 'HernanWilkinson 6/17/2013 18:47'!
-initializeTotal: aTotal
+!Sale methodsFor: 'initialization' stamp: 'rjs 7/21/2020 19:58:50'!
+belongsTo: anUser
 
-	total := aTotal ! !
+	^ owner = anUser
+! !
+
+!Sale methodsFor: 'initialization' stamp: 'rjs 7/21/2020 18:55:03'!
+initializeWithCostumer: anOwner andItems: aListOfItems.
+
+	owner := anOwner.
+	items := aListOfItems.! !
+
+!Sale methodsFor: 'initialization' stamp: 'rjs 7/21/2020 19:27:05'!
+owner
+
+	^owner
+! !
+
+
+!Sale methodsFor: 'as yet unclassified' stamp: 'rjs 7/21/2020 20:15:39'!
+createListOfPurchases: aBlock
+
+	items do: [:each | aBlock value: each item value: each total].
+
+! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -989,11 +1080,52 @@ initializeTotal: aTotal
 Sale class
 	instanceVariableNames: ''!
 
-!Sale class methodsFor: 'instance creation' stamp: 'HernanWilkinson 6/17/2013 18:47'!
-of: aTotal
+!Sale class methodsFor: 'instance creation' stamp: 'rjs 7/21/2020 18:54:07'!
+withCostumer: anOwner andItems: aListOfItems.
 
 	"should assert total is not negative or 0!!"
-	^self new initializeTotal: aTotal ! !
+	^self new initializeWithCostumer: anOwner andItems: aListOfItems.! !
+
+
+!classDefinition: #SaleRow category: #TusLibros!
+Object subclass: #SaleRow
+	instanceVariableNames: 'item quantity total'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'TusLibros'!
+
+!SaleRow methodsFor: 'as yet unclassified' stamp: 'rjs 7/21/2020 18:16:26'!
+initializeItem: anItem quantity: anAmount total: aTotal.
+
+	item := anItem.
+	quantity := anAmount .
+	total := aTotal.! !
+
+!SaleRow methodsFor: 'as yet unclassified' stamp: 'rjs 7/21/2020 19:02:36'!
+item
+
+	^ item! !
+
+!SaleRow methodsFor: 'as yet unclassified' stamp: 'rjs 7/21/2020 19:02:44'!
+quantity
+
+	^ quantity! !
+
+!SaleRow methodsFor: 'as yet unclassified' stamp: 'rjs 7/21/2020 19:02:31'!
+total
+
+	^ total! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'SaleRow class' category: #TusLibros!
+SaleRow class
+	instanceVariableNames: ''!
+
+!SaleRow class methodsFor: 'as yet unclassified' stamp: 'rjs 7/21/2020 18:16:43'!
+item: anItem quantity: anAmount total: aTotal
+
+	^self new initializeItem: anItem quantity: anAmount total: aTotal.! !
 
 
 !classDefinition: #StoreTestObjectsFactory category: #TusLibros!
