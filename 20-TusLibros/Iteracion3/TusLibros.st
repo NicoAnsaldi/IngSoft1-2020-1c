@@ -267,7 +267,7 @@ TestCase subclass: #CreditCardTest
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!CreditCardTest methodsFor: 'as yet unclassified' stamp: 'na 7/21/2020 14:42:29'!
+!CreditCardTest methodsFor: 'test' stamp: 'na 7/21/2020 14:42:29'!
 test01CreateCreditCard
 
 	| visa |
@@ -278,7 +278,7 @@ test01CreateCreditCard
 	self assert: visa date equals: (Month month: 2 year: 2020).
 	self assert: visa owner equals: 'Pepito'! !
 
-!CreditCardTest methodsFor: 'as yet unclassified' stamp: 'na 7/21/2020 14:42:52'!
+!CreditCardTest methodsFor: 'test' stamp: 'na 7/21/2020 14:42:52'!
 test02ValidNumber
 
 	self
@@ -286,7 +286,7 @@ test02ValidNumber
 	raise: Error
 	withMessageText: [ CreditCard  InvalidCardErrorDescription ]! !
 
-!CreditCardTest methodsFor: 'as yet unclassified' stamp: 'na 7/21/2020 14:43:04'!
+!CreditCardTest methodsFor: 'test' stamp: 'na 7/21/2020 14:43:04'!
 test03ValidOwner
 
 	self
@@ -294,7 +294,7 @@ test03ValidOwner
 	raise: Error
 	withMessageText: [ CreditCard  InvalidCardErrorDescription ]! !
 
-!CreditCardTest methodsFor: 'as yet unclassified' stamp: 'na 7/21/2020 14:54:01'!
+!CreditCardTest methodsFor: 'test' stamp: 'na 7/21/2020 14:54:01'!
 test04isExpired
 
 	| today visa |
@@ -308,107 +308,111 @@ test04isExpired
 
 !classDefinition: #InterfaceRestTest category: #TusLibros!
 TestCase subclass: #InterfaceRestTest
-	instanceVariableNames: 'testObjectsFactory debitBehavior autSystem objectFactory'
+	instanceVariableNames: 'testObjectsFactory debitBehavior autSystem objectFactory clock interfaze'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/16/2020 19:09:22'!
+!InterfaceRestTest methodsFor: 'auxiliaries' stamp: 'rjs 7/16/2020 19:09:22'!
 autentificateWith: anID and: aPassword
 
 	^ autSystem value: anID value: aPassword.! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 13:58:42'!
+!InterfaceRestTest methodsFor: 'auxiliaries' stamp: 'na 7/21/2020 13:58:42'!
 autentificationSystem
 
 	^self! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 13:58:29'!
-createInterfaceRest
+!InterfaceRestTest methodsFor: 'auxiliaries' stamp: 'na 7/21/2020 14:50:02'!
+creditCardOwner
 
-	^ InterfaceRest with: self autentificationSystem aCatalog: objectFactory defaultCatalog aMerchantProcessor: self merchantProcessor andASalesBook:  OrderedCollection new.! !
+	^'Pepito'! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 16:41:35'!
-creditCardDate
-
-	^(Month month: (DateAndTime now) monthIndex year: (DateAndTime now) yearNumber + 1)! !
-
-!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/21/2020 19:25:53'!
+!InterfaceRestTest methodsFor: 'auxiliaries' stamp: 'rjs 7/21/2020 19:25:53'!
 debit: anAmount from: aCreditCard 
 
 	! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 13:58:59'!
+!InterfaceRestTest methodsFor: 'auxiliaries' stamp: 'na 7/22/2020 19:43:24'!
+expiredCreditCardDate
+
+	^(Month month: (clock now) monthIndex year: (clock now) yearNumber - 1)! !
+
+!InterfaceRestTest methodsFor: 'auxiliaries' stamp: 'na 7/22/2020 15:04:43'!
+invalidCartID
+
+	^nil! !
+
+!InterfaceRestTest methodsFor: 'auxiliaries' stamp: 'na 7/21/2020 13:58:59'!
 merchantProcessor
 
 	^self! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/21/2020 17:37:43'!
+!InterfaceRestTest methodsFor: 'auxiliaries' stamp: 'na 7/22/2020 14:35:27'!
+notExpiredCreditCardDate
+
+	^(Month month: (DateAndTime now) monthIndex year: (DateAndTime now) yearNumber + 1)! !
+
+!InterfaceRestTest methodsFor: 'auxiliaries' stamp: 'rjs 7/21/2020 17:41:15'!
+validCreditCardNumber
+
+	^'1234567891234567'! !
+
+
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/22/2020 18:57:31'!
 test01CanCreateACartWithAValidUserAndAValidPass
 
-	|  interface cartID |
+	| cartID |
 
 	autSystem := [ :ID :Pass | ].
-	interface := self createInterfaceRest.
-	cartID := interface createCart: '1234' with: 'hola1234'.
+	cartID := interfaze createCart: '1234' with: 'hola1234'.
 	
-	self assert: ((interface listCart: cartID) isEmpty)
+	self assert: ((interfaze listCart: cartID) isEmpty)
 
 ! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 14:01:55'!
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/22/2020 18:57:49'!
 test02CanNotCreateACartWithInvalidUser
 
-	|  interface |
-
 	autSystem := [ :ID :Pass | ^ self error: InterfaceRest wrongIDErrorMessage].
-	interface := self createInterfaceRest.
 	
 	self 
-		should: [ interface createCart: '1234' with: 'hola1234' ]
+		should: [ interfaze createCart: '1234' with: 'hola1234' ]
 		raise: Error - MessageNotUnderstood
 		withExceptionDo: [ :anError |
 		self assert: anError messageText = InterfaceRest wrongIDErrorMessage.]! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 14:02:03'!
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/22/2020 18:58:01'!
 test03CanNotCreateACartWithInvalidPass
 
-	|  interface |
-
 	autSystem := [ :ID :Pass | ^ self error: InterfaceRest wrongPassErrorMessage].
-	interface := self createInterfaceRest .
 	
 	self 
-		should: [ interface createCart: '1234' with: 'hola1234' ]
+		should: [ interfaze createCart: '1234' with: 'hola1234' ]
 		raise: Error - MessageNotUnderstood
 		withExceptionDo: [ :anError |
 		self assert: anError messageText = InterfaceRest wrongPassErrorMessage.]! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 14:26:54'!
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/22/2020 18:58:17'!
 test04CreateCartReturnsAnId
-	|  interface cartId|
+	| cartId|
 
-	interface := self createInterfaceRest.
+	cartId :=interfaze createCart: '1234' with: 'hola1234'.
 	
-	self 
-		shouldnt: [cartId :=interface createCart: '1234' with: 'hola1234' ]
-		raise: Error - MessageNotUnderstood.
-
 	self assert: (cartId = nil) not.
 	
 	
 	
 	! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 14:27:53'!
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/22/2020 18:58:35'!
 test05DifferentCartsReturnDifferentIds
 
-	|  interface cartId1 cartId2 cartId3 |
+	| cartId1 cartId2 cartId3 |
 
-	interface := self createInterfaceRest.
-	cartId1 := interface createCart: 'L' with: '678'.
-	cartId2 := interface createCart: 'N' with: '123'.
-	cartId3 := interface createCart: 'R' with: '454'.
+	cartId1 := interfaze createCart: 'L' with: '678'.
+	cartId2 := interfaze createCart: 'N' with: '123'.
+	cartId3 := interfaze createCart: 'R' with: '454'.
 	
 	self assert: ((cartId1 = cartId2) not).
 	self assert: ((cartId2 = cartId3) not).
@@ -416,225 +420,321 @@ test05DifferentCartsReturnDifferentIds
 	
 	! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/21/2020 19:23:22'!
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/22/2020 18:59:31'!
 test06CanAddBooksToAValidCart
 
-	|  interface cartID collection |
+	|  cartID |
 
-	interface := self createInterfaceRest.
-	cartID := interface createCart: '1234' with: 'hola1234'.
+	cartID := interfaze createCart: '1234' with: 'hola1234'.
 	
-	interface addBook: objectFactory itemSellByTheStore quantity: 1 cart: cartID.
+	interfaze addBook: objectFactory itemSellByTheStore quantity: 1 cart: cartID.
 	
-	collection := interface listCart: cartID.
-	
-	
-	self assert: ((interface listCart: cartID) includes: objectFactory itemSellByTheStore).
-	self assert: ((interface listCart: cartID) occurrencesOf: objectFactory itemSellByTheStore) equals: 1
+	self assert: ((interfaze listCart: cartID) includes: objectFactory itemSellByTheStore).
+	self assert: ((interfaze listCart: cartID) occurrencesOf: objectFactory itemSellByTheStore) equals: 1
 	
 
 
 
 	! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 14:05:29'!
-test07CanNotAddItemToNotCreatedCart
-
-	|  interface  |
-
-	interface := self createInterfaceRest .
-		
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/22/2020 18:59:56'!
+test07CanNotAddItemToNotCreatedCart		
 
 	self 
-		should: [ interface addBook: objectFactory itemSellByTheStore quantity: 1 cart: 3. ]
+		should: [ interfaze addBook: objectFactory itemSellByTheStore quantity: 1 cart: self invalidCartID . ]
 		raise: Error - MessageNotUnderstood
 		withExceptionDo: [ :anError |
-		self assert: anError messageText = InterfaceRest CanNotAddBookToNotCreatedCartErrorMessage.]
+		self assert: anError messageText = InterfaceRest invalidCartIDErrorMessage.]
 	
 
 
 	! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 14:05:39'!
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/22/2020 19:00:22'!
 test08CanNotAddItemNotSellByTheStore
 
-	|  interface  cartID |
+	|cartID |
 
-	interface := self createInterfaceRest .
-	cartID := interface createCart: '1234' with: 'hola1234'.
+	cartID := interfaze createCart: '1234' with: 'hola1234'.
 		
 
 	self 
-		should: [ interface addBook: objectFactory itemNotSellByTheStore quantity: 1 cart: cartID. ]
+		should: [ interfaze addBook: objectFactory itemNotSellByTheStore quantity: 1 cart: cartID. ]
 		raise: Error - MessageNotUnderstood
 		withExceptionDo: [ :anError |
-		self assert: anError messageText = InterfaceRest CanNotAddBookNotInCatalogToCartErrorMessage.]
+		self assert: anError messageText = interfaze invalidItemErrorMessage.
+		self assert: (interfaze listCart: cartID) isEmpty ]
 	
-	"es necesario hacer este test?, porque, cart ya tiene el mismo?"
 	
 	
 
 
 	! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 14:29:05'!
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/22/2020 19:00:45'!
 test09ListCartOfAnEmptyCartIsEmpty
 	
-	|  interface cartID |
+	|cartID |
 
-	interface := self createInterfaceRest .
-	cartID := interface createCart: '1234' with: 'hola1234'.
+	cartID := interfaze createCart: '1234' with: 'hola1234'.
 		
-	self assert: ((interface listCart: cartID) isEmpty).
+	self assert: ((interfaze listCart: cartID) isEmpty).
 
 
 	! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 14:29:27'!
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/22/2020 19:01:04'!
 test10CanNotListCartOfNotCreatedCart
 
-	|  interface  |
-
-	interface := self createInterfaceRest .
-		
-
 	self 
-		should: [ interface listCart: 3. ]
+		should: [ interfaze listCart: self invalidCartID. ]
 		raise: Error - MessageNotUnderstood
 		withExceptionDo: [ :anError |
-		self assert: anError messageText = InterfaceRest CanNotListANotCreatedCartErrorMessage.]
+		self assert: anError messageText = InterfaceRest invalidCartIDErrorMessage.]
 
 	
 	! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 14:30:09'!
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/22/2020 19:01:35'!
 test11ListCartReturnsTheRightNumberOfItems
 
-	|  interface cartID |
-
-	interface := self createInterfaceRest .
-	cartID := interface createCart: '1234' with: 'hola1234'.
+	|cartID |
 	
-	interface addBook: objectFactory itemSellByTheStore quantity: 1 cart: cartID.
-	interface addBook: objectFactory itemSellByTheStore quantity: 10 cart: cartID.
-	interface addBook: objectFactory itemSellByTheStore quantity: 12 cart: cartID.
+	cartID := interfaze createCart: '1234' with: 'hola1234'.
 	
+	interfaze addBook: objectFactory itemSellByTheStore quantity: 1 cart: cartID.
+	interfaze addBook: objectFactory itemSellByTheStore quantity: 10 cart: cartID.
+	interfaze addBook: objectFactory itemSellByTheStore quantity: 12 cart: cartID.
+	interfaze addBook: objectFactory anotherItemSellByTheStore  quantity: 4 cart: cartID. 
 	
-	self assert: ((interface listCart: cartID) includes: objectFactory itemSellByTheStore).
-	self assert: ((interface listCart: cartID) occurrencesOf: objectFactory itemSellByTheStore) equals: 23
-
+	self assert: ((interfaze listCart: cartID) includes: objectFactory itemSellByTheStore).
+	self assert: ((interfaze listCart: cartID) includes: objectFactory anotherItemSellByTheStore).
+	self assert: ((interfaze listCart: cartID) occurrencesOf: objectFactory itemSellByTheStore) equals: 23.
+	self assert: ((interfaze listCart: cartID) occurrencesOf: objectFactory anotherItemSellByTheStore) equals: 4.
 	
 	! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/21/2020 20:20:21'!
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/22/2020 19:02:08'!
 test12CanCheckoutACart
 
-	|  interface cartID purchases|
+	|cartID purchases|
 
-	interface := self createInterfaceRest .
-	cartID := interface createCart: 'Pepito' with: 'hola1234'.
-	interface addBook: objectFactory itemSellByTheStore quantity: 1 cart: cartID.
+	cartID := interfaze createCart: 'Pepito' with: 'hola1234'.
+	interfaze addBook: objectFactory itemSellByTheStore quantity: 1 cart: cartID.
 	
-	interface checkout: cartID 
+	interfaze checkout: cartID 
 				creditCardNumber: self validCreditCardNumber 
-				withExpiredDate: self creditCardDate 
+				withExpiredDate: self notExpiredCreditCardDate 
 				wihtOwner: self creditCardOwner.
 				
-	purchases := interface listPurchasesFromUser: 'Pepito' andPass: 'hola1234'.
+	purchases := interfaze listPurchasesFromUser: 'Pepito' andPass: 'hola1234'.
 	
 	
 	self assert: (purchases includesKey: objectFactory itemSellByTheStore).
-	self assert: (purchases at: objectFactory itemSellByTheStore) equals: 10.
+	self assert: (purchases at: objectFactory itemSellByTheStore) equals: objectFactory itemSellByTheStorePrice.
 
 
 	
 	! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 16:50:53'!
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/22/2020 19:46:59'!
 test13CanNotCheckoutWithAnExpiredCard
 
-	'Es necesario?, lo resuelve el cashier'! !
+	|cartID |
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 16:51:53'!
+	cartID := interfaze createCart: 'Pepito' with: 'hola1234'.
+	interfaze addBook: objectFactory itemSellByTheStore quantity: 1 cart: cartID.
+	
+	self
+	should: [interfaze checkout: cartID 
+				creditCardNumber: self validCreditCardNumber 
+				withExpiredDate: self expiredCreditCardDate 
+				wihtOwner: self creditCardOwner.]
+	raise: Error - MessageNotUnderstood 
+	withExceptionDo:[:anError | 
+		self assert: anError messageText = interfaze canNotChargeAnExpiredCreditCardErrorMessage.
+		self assert: (interfaze listPurchasesFromUser: 'Pepito' andPass: 'hola1234') isEmpty]
+				
+	! !
+
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/22/2020 19:02:59'!
 test14CanNotCheckoutAnEmptyCart
 
+	|cartID |
+
+	cartID := interfaze createCart: 'Pepito' with: 'hola1234'.
+	
+	self
+	should: [interfaze checkout: cartID 
+				creditCardNumber: self validCreditCardNumber 
+				withExpiredDate: self expiredCreditCardDate 
+				wihtOwner: self creditCardOwner.]
+	raise: Error - MessageNotUnderstood 
+	withExceptionDo:[:anError | 
+		self assert: anError messageText = interfaze cartCanNotBeEmptyErrorMessage.
+		self assert: (interfaze listPurchasesFromUser: 'Pepito' andPass: 'hola1234') isEmpty]! !
+
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/22/2020 19:03:20'!
+test15CanNotCheckoutANotCreatedCart
+
+	self
+	should: [interfaze checkout: self invalidCartID 
+				creditCardNumber: self validCreditCardNumber 
+				withExpiredDate: self expiredCreditCardDate 
+				wihtOwner: self creditCardOwner.]
+	raise: Error - MessageNotUnderstood 
+	withExceptionDo:[:anError | 
+		self assert: anError messageText = InterfaceRest invalidCartIDErrorMessage]! !
+
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/22/2020 19:03:46'!
+test16WhenCheckOutTheCartCantBeUseAgain
+
+	| cartID |
+
+	cartID := interfaze createCart: 'Pepito' with: 'hola1234'.
+	interfaze addBook: objectFactory itemSellByTheStore quantity: 1 cart: cartID.
+	
+	interfaze checkout: cartID 
+				creditCardNumber: self validCreditCardNumber 
+				withExpiredDate: self notExpiredCreditCardDate 
+				wihtOwner: self creditCardOwner.
+				
+	self should: [(interfaze listCart: cartID)]
+	raise: Error - MessageNotUnderstood 
+	withExceptionDo:[:anError | anError messageText = InterfaceRest invalidCartIDErrorMessage ]
 	! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 14:36:21'!
-test15CanNotCheckoutACartUsingAnInvalidCard
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/22/2020 19:04:16'!
+test17CanListPurchasesOfOneUserCart
+
+	|cartID purchases|
+
+	cartID := interfaze createCart: 'Pepito' with: 'hola1234'.
+	interfaze addBook: objectFactory itemSellByTheStore quantity: 4 cart: cartID.
+	interfaze addBook: objectFactory anotherItemSellByTheStore quantity: 3 cart: cartID.
+	
+	interfaze checkout: cartID 
+				creditCardNumber: self validCreditCardNumber 
+				withExpiredDate: self notExpiredCreditCardDate 
+				wihtOwner: self creditCardOwner.
+				
+	purchases := interfaze listPurchasesFromUser: 'Pepito' andPass: 'hola1234'.
+	
+	
+	self assert: (purchases includesKey: objectFactory itemSellByTheStore).
+	self assert: (purchases at: objectFactory itemSellByTheStore) equals: objectFactory itemSellByTheStorePrice * 4.
+	self assert: (purchases includesKey: objectFactory anotherItemSellByTheStore).
+	self assert: (purchases at: objectFactory anotherItemSellByTheStore) equals: objectFactory anotherItemSellByTheStorePrice * 3.
 
 	
 	! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 14:36:32'!
-test16CanNotCheckoutANotCreatedCart
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/22/2020 19:04:52'!
+test18ListPurchasesDontShowPurchasesFromOtherCostumers
 
+	|cartID1 cartID2 purchases1 purchases2|
+
+	cartID1 := interfaze createCart: 'Pepito' with: 'hola1234'.
+	cartID2 := interfaze createCart: 'Pedro' with: 'eldiegote'.
+	interfaze addBook: objectFactory itemSellByTheStore quantity: 4 cart: cartID1.
+	interfaze addBook: objectFactory anotherItemSellByTheStore quantity: 3 cart: cartID2.
 	
-	! !
+	interfaze checkout: cartID1 
+				creditCardNumber: self validCreditCardNumber 
+				withExpiredDate: self notExpiredCreditCardDate 
+				wihtOwner: self creditCardOwner.
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/21/2020 14:36:44'!
-test17CanNotDoOperationsOnACheckoutACart
-
+	interfaze checkout: cartID2 
+				creditCardNumber: self validCreditCardNumber 
+				withExpiredDate: self notExpiredCreditCardDate 
+				wihtOwner: 'Pedro'.
+				
+	purchases1 := interfaze listPurchasesFromUser: 'Pepito' andPass: 'hola1234'. 
+	purchases2 := interfaze listPurchasesFromUser: 'Pedro' andPass: 'eldiegote'. 
 	
-	! !
-
-!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/21/2020 20:21:26'!
-test20ListPurchasesOfEmptyCartIsEmpty
-
-
+	self assert: (purchases1 includesKey: objectFactory itemSellByTheStore).
+	self assert: (purchases1 at: objectFactory itemSellByTheStore) equals: objectFactory itemSellByTheStorePrice * 4.
+	self deny: (purchases1 includesKey: objectFactory anotherItemSellByTheStore).
 	
+	self assert: (purchases2 includesKey: objectFactory anotherItemSellByTheStore).
+	self assert: (purchases2 at: objectFactory anotherItemSellByTheStore) equals: objectFactory anotherItemSellByTheStorePrice * 3.
+	self deny: (purchases2 includesKey: objectFactory itemSellByTheStore).! !
 
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/22/2020 19:05:09'!
+test19CantListPurchasesOfAnInvalidUserName
 
-
+	autSystem := [ :ID :Pass | ^ self error: InterfaceRest wrongIDErrorMessage].
 	
-	! !
+	self 
+		should: [interfaze listPurchasesFromUser: 'User' andPass: 'Pass']
+		raise: Error - MessageNotUnderstood
+		withExceptionDo: [ :anError |
+		self assert: anError messageText = InterfaceRest wrongIDErrorMessage.]! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 19:46:09'!
-test21CanListPurchasesOfOneUserCart
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/22/2020 19:05:21'!
+test20CantListPurchasesOfAValidUserNameWithInvalidPassword
 
+	autSystem := [ :ID :Pass | ^ self error: InterfaceRest wrongPassErrorMessage].
 	
-	! !
+	self 
+		should: [interfaze listPurchasesFromUser: 'User' andPass: 'Pass']
+		raise: Error - MessageNotUnderstood
+		withExceptionDo: [ :anError |
+		self assert: anError messageText = InterfaceRest wrongPassErrorMessage.]! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 19:46:04'!
-test22CanListPurchasesOfManyUserCarts
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/22/2020 19:05:52'!
+test21CanNotAddToCartWhenSessionIsExpired
 
-	
-	! !
+	|cartId |
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 19:29:50'!
-test23CanListPurchasesOfTwoDifferentChekoutCarts
+	cartId := interfaze createCart: 'Pepito' with: 'hola1234'.
+	clock advanceTime: (interfaze sessionDuration + 1 minutes) .
+	self
+		should: [interfaze addBook: objectFactory itemSellByTheStore quantity: 1 cart: cartId]
+		raise: Error - MessageNotUnderstood
+		withExceptionDo: [ :anError |
+			self assert: anError messageText equals: interfaze sessionHasExpiredErrorMessage.]! !
 
-	
-	! !
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/22/2020 19:47:51'!
+test22CanNotListCartWhenSessionIsExpired
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 19:46:29'!
-test24CantListPurchasesOfAnInvalidUserName
+	|cartId |
 
-	
-	! !
+	cartId := interfaze createCart: 'Pepito' with: 'hola1234'.
+	clock advanceTime: (interfaze sessionDuration + 1 minutes) .
+	self
+		should: [interfaze listCart: cartId]
+		raise: Error - MessageNotUnderstood
+		withExceptionDo: [ :anError |
+			self assert: anError messageText equals: interfaze sessionHasExpiredErrorMessage.]! !
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/20/2020 19:46:24'!
-test25CantListPurchasesOfAValidUserNameWithInvalidPassword
+!InterfaceRestTest methodsFor: 'test' stamp: 'na 7/22/2020 19:49:56'!
+test23CanNotCheckOutACartWhenSessionIsExpired
 
-	
-	! !
+	|cartId |
 
-!InterfaceRestTest methodsFor: 'test' stamp: 'rjs 7/21/2020 17:41:15'!
-validCreditCardNumber
+	cartId := interfaze createCart: 'Pepito' with: 'hola1234'.
+	clock advanceTime: (interfaze sessionDuration + 1 minutes) .
+	self
+		should: [interfaze checkout: cartId 
+							creditCardNumber: self validCreditCardNumber 
+							withExpiredDate: self notExpiredCreditCardDate 
+							wihtOwner: self creditCardOwner.]
+		raise: Error - MessageNotUnderstood
+		withExceptionDo: [ :anError |
+			self assert: anError messageText equals: interfaze sessionHasExpiredErrorMessage.]! !
 
-	^'1234567891234567'! !
 
-
-!InterfaceRestTest methodsFor: 'setUp' stamp: 'na 7/21/2020 14:50:02'!
-creditCardOwner
-
-	^'Pepito'! !
-
-!InterfaceRestTest methodsFor: 'setUp' stamp: 'rjs 7/16/2020 20:19:50'!
+!InterfaceRestTest methodsFor: 'setUp' stamp: 'na 7/22/2020 18:12:20'!
 setUp
 
 	autSystem := [ :ID :Pass | ].
-	objectFactory := StoreTestObjectsFactory new.! !
+	objectFactory := StoreTestObjectsFactory new.
+	clock := ManualClock at: DateAndTime now.
+	interfaze := InterfaceRest withAthoritationSystem: self autentificationSystem 
+									withACatalog: objectFactory defaultCatalog 
+									aMerchantProcessor: self merchantProcessor 
+									andASalesBook:  OrderedCollection new using: clock.! !
 
 
 !classDefinition: #Cart category: #TusLibros!
@@ -644,10 +744,10 @@ Object subclass: #Cart
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!Cart methodsFor: 'error messages' stamp: 'HernanWilkinson 6/17/2013 17:45'!
+!Cart methodsFor: 'error messages' stamp: 'na 7/22/2020 14:23:37'!
 invalidItemErrorMessage
 	
-	^'Item is not in catalog'! !
+	^self class invalidItemErrorMessage.! !
 
 !Cart methodsFor: 'error messages' stamp: 'HernanWilkinson 6/17/2013 17:45'!
 invalidQuantityErrorMessage
@@ -683,6 +783,11 @@ contents
 	items keysDo: [ :aBook | 1 to: (items at: aBook) do: [ :each | collection add: aBook ] ].
 		
 	^ collection! !
+
+!Cart methodsFor: 'queries' stamp: 'rjs 7/21/2020 18:55:42'!
+createSaleRow: aBlock
+
+	items keysDo: [ :each | aBlock value: each value: (items at: each)  value: (items at: each)*(catalog at: each)]! !
 
 !Cart methodsFor: 'queries' stamp: 'rjs 7/21/2020 18:28:29'!
 occurrencesOf: anItem
@@ -720,12 +825,6 @@ add: aQuantity of: anItem
 
 	items at: anItem put: (self occurrencesOf: anItem) + aQuantity! !
 
-
-!Cart methodsFor: 'as yet unclassified' stamp: 'rjs 7/21/2020 18:55:42'!
-createSaleRow: aBlock
-
-	items keysDo: [ :each | aBlock value: each value: (items at: each)  value: (items at: each)*(catalog at: each)]! !
-
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
 !classDefinition: 'Cart class' category: #TusLibros!
@@ -736,6 +835,91 @@ Cart class
 acceptingItemsOf: aCatalog
 
 	^self new initializeAcceptingItemsOf: aCatalog ! !
+
+
+!Cart class methodsFor: 'as yet unclassified' stamp: 'na 7/22/2020 14:23:22'!
+invalidItemErrorMessage
+	
+	^'Item is not in catalog'! !
+
+
+!classDefinition: #CartSession category: #TusLibros!
+Object subclass: #CartSession
+	instanceVariableNames: 'owner cart interface lastTimeUsed'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'TusLibros'!
+
+!CartSession methodsFor: 'actions' stamp: 'na 7/22/2020 19:50:50'!
+add: aQuantity of: aBook
+
+	self assertSessionIsNotExpired.
+	
+	cart add: aQuantity of: aBook.
+	lastTimeUsed := interface now.
+	! !
+
+!CartSession methodsFor: 'actions' stamp: 'na 7/22/2020 19:51:24'!
+carContents
+
+	self assertSessionIsNotExpired.
+
+	^cart contents ! !
+
+!CartSession methodsFor: 'actions' stamp: 'na 7/22/2020 19:53:18'!
+checkout: aCartID creditCardNumber: aCreditCardNumber withExpiredDate: aCreditCardExpiredDate withOwner: aCreditCardOwner
+	
+	self assertSessionIsNotExpired.
+	lastTimeUsed := interface now.
+	
+	^(Cashier toCheckout: cart 
+				charging: (CreditCard createWithANumber: aCreditCardNumber thisDate: aCreditCardExpiredDate thisOwner: aCreditCardOwner)
+				throught: interface merchantProcessor 
+				on: interface now 
+				registeringOn: interface salesBook) checkOut.
+	
+	
+	
+	! !
+
+
+!CartSession methodsFor: 'accesing' stamp: 'na 7/22/2020 18:42:39'!
+now
+	
+	^interface now
+	! !
+
+
+!CartSession methodsFor: 'asserts' stamp: 'na 7/22/2020 18:47:52'!
+assertIsExpiredOn: aTime
+
+	^(aTime - lastTimeUsed ) > interface sessionDuration.! !
+
+!CartSession methodsFor: 'asserts' stamp: 'na 7/22/2020 19:50:50'!
+assertSessionIsNotExpired
+
+	^ (self assertIsExpiredOn: interface now) ifTrue: [self error: interface sessionHasExpiredErrorMessage]! !
+
+
+!CartSession methodsFor: 'initialization' stamp: 'na 7/22/2020 18:35:59'!
+initializeWith: anUser withCart: aCart onInterface: anInterfaceRest.
+
+	owner := anUser.
+	cart := aCart.
+	interface := anInterfaceRest.
+	
+	lastTimeUsed := interface now.! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'CartSession class' category: #TusLibros!
+CartSession class
+	instanceVariableNames: ''!
+
+!CartSession class methodsFor: 'instance creation' stamp: 'na 7/22/2020 18:35:03'!
+by: anUser with: aCart withInterface: anInterfaceRest
+
+	^self new initializeWith: anUser withCart: aCart onInterface: anInterfaceRest.! !
 
 
 !classDefinition: #Cashier category: #TusLibros!
@@ -837,6 +1021,54 @@ creditCardHasNoCreditErrorMessage
 	^'Credit card has no credit'! !
 
 
+!classDefinition: #Clock category: #TusLibros!
+Object subclass: #Clock
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'TusLibros'!
+
+!Clock methodsFor: 'action' stamp: 'na 7/22/2020 20:01:45'!
+now
+
+	^self subclassResponsibility ! !
+
+
+!classDefinition: #ManualClock category: #TusLibros!
+Clock subclass: #ManualClock
+	instanceVariableNames: 'now'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'TusLibros'!
+
+!ManualClock methodsFor: 'initialization' stamp: 'na 7/22/2020 17:29:49'!
+initializeWithTime: aTime
+
+	now := aTime.! !
+
+
+!ManualClock methodsFor: 'accesing' stamp: 'na 7/22/2020 17:40:17'!
+advanceTime: aTime
+
+	now := now + aTime.! !
+
+!ManualClock methodsFor: 'accesing' stamp: 'na 7/22/2020 18:13:47'!
+now
+
+	^now! !
+
+"-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
+
+!classDefinition: 'ManualClock class' category: #TusLibros!
+ManualClock class
+	instanceVariableNames: ''!
+
+!ManualClock class methodsFor: 'instance creation' stamp: 'na 7/22/2020 17:29:03'!
+at: aTime
+
+	^self new initializeWithTime: aTime.! !
+
+
 !classDefinition: #CreditCard category: #TusLibros!
 Object subclass: #CreditCard
 	instanceVariableNames: 'owner number date limit amount'
@@ -907,92 +1139,143 @@ InvalidCardErrorDescription
 
 !classDefinition: #InterfaceRest category: #TusLibros!
 Object subclass: #InterfaceRest
-	instanceVariableNames: 'id autentificationSystem carts catalog merchant salesBook'
+	instanceVariableNames: 'id autentificationSystem cartsSession catalog merchant salesBook transactionID clock'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!InterfaceRest methodsFor: 'initialization' stamp: 'rjs 7/21/2020 17:43:45'!
-initializeWith: anAutentificationSystem and: aCatalog aMerchantProcessor: aMP andASalesBook:  aSalesBook
+!InterfaceRest methodsFor: 'initialization' stamp: 'na 7/22/2020 18:54:46'!
+initializeWith: anAutentificationSystem and: aCatalog aMerchantProcessor: aMP andASalesBook:  aSalesBook using: aClock
 
 	autentificationSystem := anAutentificationSystem.
 	id := 0.
-	carts := Dictionary new.
+	cartsSession := Dictionary new.
 	catalog := aCatalog.
 	merchant := aMP.
-	salesBook := aSalesBook.! !
+	salesBook := aSalesBook.
+	transactionID := 0.
+	clock := aClock.! !
 
 
-!InterfaceRest methodsFor: 'as yet unclassified' stamp: 'rjs 7/20/2020 20:29:57'!
+!InterfaceRest methodsFor: 'accesing' stamp: 'na 7/22/2020 19:23:42'!
+merchantProcessor
+
+	^merchant ! !
+
+!InterfaceRest methodsFor: 'accesing' stamp: 'na 7/22/2020 18:13:38'!
+now
+
+	^clock now.! !
+
+!InterfaceRest methodsFor: 'accesing' stamp: 'na 7/22/2020 19:23:53'!
+salesBook
+
+	^salesBook ! !
+
+!InterfaceRest methodsFor: 'accesing' stamp: 'na 7/22/2020 17:33:46'!
+sessionDuration
+
+	^30 minutes.! !
+
+
+!InterfaceRest methodsFor: 'actions' stamp: 'na 7/22/2020 19:55:46'!
 addBook: aBook quantity: aQuantity cart: aCartID
 
-	| cart |
+	| cartSession |
 	
-	(catalog includesKey: aBook) ifFalse: [^ self error: self class CanNotAddBookNotInCatalogToCartErrorMessage ].
-	cart := carts at: aCartID ifAbsent: [ ^ self error: self class CanNotAddBookToNotCreatedCartErrorMessage ].
+	cartSession := self assertTheSessionExistsInTheInterface: aCartID.
 		
-	cart add: aQuantity of: aBook.
+	cartSession add: aQuantity of: aBook.
 
 	
 	! !
 
-!InterfaceRest methodsFor: 'as yet unclassified' stamp: 'rjs 7/21/2020 17:47:14'!
+!InterfaceRest methodsFor: 'actions' stamp: 'na 7/22/2020 19:56:09'!
 checkout: aCartID creditCardNumber: aCreditCardNumber withExpiredDate: aCreditCardExpiredDate wihtOwner: aCreditCardOwner
 	
-	|cart creditCard cashier|
+	|cartSession |
 	
-	cart := carts at: aCartID.
-	creditCard := CreditCard createWithANumber: aCreditCardNumber thisDate: aCreditCardExpiredDate thisOwner: aCreditCardOwner.
+	cartSession := self assertTheSessionExistsInTheInterface: aCartID.
+	cartSession checkout: aCartID creditCardNumber: aCreditCardNumber withExpiredDate: aCreditCardExpiredDate withOwner: aCreditCardOwner.
 	
-	cashier := Cashier toCheckout: cart charging: creditCard throught: merchant on: (DateAndTime now) registeringOn: salesBook.
 	
-	^ cashier checkOut ! !
+	cartsSession removeKey: aCartID.
+	transactionID := transactionID +1.
+	^transactionID 
+	! !
 
-!InterfaceRest methodsFor: 'as yet unclassified' stamp: 'rjs 7/20/2020 20:08:51'!
-createCart: anID with: aPassword
+!InterfaceRest methodsFor: 'actions' stamp: 'na 7/22/2020 18:38:34'!
+createCart: anUser with: aPassword
 	
-	| cart |
+	| cartSession |
 	
-	autentificationSystem autentificateWith: anID and: aPassword.
+	autentificationSystem autentificateWith: anUser and: aPassword.
 	
 	id := id + 1.
 	
-	cart := Cart acceptingItemsOf: catalog.
-	carts at: id put: cart.
+	cartSession := CartSession by: anUser with: (Cart acceptingItemsOf: catalog) withInterface: self.
+	cartsSession at: id put: cartSession.
 	
 	^ id.
 
 	 ! !
 
-!InterfaceRest methodsFor: 'as yet unclassified' stamp: 'rjs 7/21/2020 20:13:32'!
-defineResumeIn: book with: anItem and: aTotal
+!InterfaceRest methodsFor: 'actions' stamp: 'na 7/22/2020 19:56:27'!
+listCart: aCartID
+	
+	^ (self assertTheSessionExistsInTheInterface: aCartID) carContents.
+
+! !
+
+
+!InterfaceRest methodsFor: 'asserts' stamp: 'na 7/22/2020 19:55:24'!
+assertTheSessionExistsInTheInterface: aCartId
+
+	^cartsSession at: aCartId ifAbsent: [ ^ self error: self class invalidCartIDErrorMessage ].	! !
+
+
+!InterfaceRest methodsFor: 'listPurchases - auxiliaries' stamp: 'na 7/22/2020 16:16:26'!
+defineResumeIn: book for: anItem withTotal: aTotal
 
 	| newTotal |
 	
 	newTotal  := (book at: anItem ifAbsent: [0] ) + aTotal.
 	book at: anItem put: newTotal.! !
 
-!InterfaceRest methodsFor: 'as yet unclassified' stamp: 'rjs 7/20/2020 20:38:40'!
-listCart: aCartID
-	
-	^ (carts at: aCartID ifAbsent: [ ^ self error: self class CanNotListANotCreatedCartErrorMessage ]) contents.
-
-! !
-
-!InterfaceRest methodsFor: 'as yet unclassified' stamp: 'rjs 7/21/2020 20:16:38'!
-listPurchasesFromUser: anUser andPass: aPassWord
+!InterfaceRest methodsFor: 'listPurchases - auxiliaries' stamp: 'na 7/22/2020 17:10:37'!
+listPurchasesFromUser: anUser andPass: aPassword
 
 	" libro1 cantidad1 libron cantidadn TOTAL"
 
 	| collection book |
-	
+	autentificationSystem autentificateWith: anUser and: aPassword.
 	collection := salesBook select: [ :each | each belongsTo: anUser ].
 	
 	book := Dictionary  new.
 	
-	collection do: [ :aSale | aSale createListOfPurchases: [:anItem :aTotal | self defineResumeIn: book with: anItem and: aTotal ] ].
+	collection do: [ :aSale | aSale createListOfPurchases: [:anItem :aTotal | self defineResumeIn: book for: anItem  withTotal: aTotal ] ].
 	
 	^ book! !
+
+
+!InterfaceRest methodsFor: 'error' stamp: 'na 7/22/2020 14:39:20'!
+canNotChargeAnExpiredCreditCardErrorMessage
+
+	^Cashier canNotChargeAnExpiredCreditCardErrorMessage! !
+
+!InterfaceRest methodsFor: 'error' stamp: 'na 7/22/2020 15:02:10'!
+cartCanNotBeEmptyErrorMessage
+	
+	^Cashier cartCanNotBeEmptyErrorMessage! !
+
+!InterfaceRest methodsFor: 'error' stamp: 'na 7/22/2020 14:22:04'!
+invalidItemErrorMessage
+	^ Cart invalidItemErrorMessage.! !
+
+!InterfaceRest methodsFor: 'error' stamp: 'na 7/22/2020 18:51:40'!
+sessionHasExpiredErrorMessage
+	
+	^'La sesion ha expirado'! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -1000,17 +1283,13 @@ listPurchasesFromUser: anUser andPass: aPassWord
 InterfaceRest class
 	instanceVariableNames: ''!
 
-!InterfaceRest class methodsFor: 'error' stamp: 'rjs 7/20/2020 20:20:43'!
-CanNotAddBookNotInCatalogToCartErrorMessage
+!InterfaceRest class methodsFor: 'error' stamp: 'na 7/22/2020 15:57:52'!
+invalidCartIDErrorMessage
+	^ 'Id inválido'! !
+
+!InterfaceRest class methodsFor: 'error' stamp: 'na 7/22/2020 14:22:04'!
+invalidItemErrorMessage
 	^ ' No podes agregar un libro que no esta en el catalog a un changuito '! !
-
-!InterfaceRest class methodsFor: 'error' stamp: 'rjs 7/20/2020 20:17:06'!
-CanNotAddBookToNotCreatedCartErrorMessage
-	^ ' No podes agregar un libro a un changuito no creado '! !
-
-!InterfaceRest class methodsFor: 'error' stamp: 'rjs 7/20/2020 20:37:35'!
-CanNotListANotCreatedCartErrorMessage
-	^ ' No podes listar un carrito no creado '! !
 
 !InterfaceRest class methodsFor: 'error' stamp: 'rjs 7/16/2020 19:00:52'!
 wrongIDErrorMessage
@@ -1021,10 +1300,10 @@ wrongPassErrorMessage
 	^ ' Password erronea '! !
 
 
-!InterfaceRest class methodsFor: 'initialization' stamp: 'rjs 7/20/2020 20:52:44'!
-with: anAutentificationSystem aCatalog: aCatalog aMerchantProcessor: aMP andASalesBook:  aSalesBook
+!InterfaceRest class methodsFor: 'initialization' stamp: 'na 7/22/2020 18:12:06'!
+withAthoritationSystem: anAutentificationSystem withACatalog: aCatalog aMerchantProcessor: aMP andASalesBook:  aSalesBook using: aClock 
 
-	^ self new initializeWith: anAutentificationSystem and: aCatalog aMerchantProcessor: aMP andASalesBook:  aSalesBook.! !
+	^ self new initializeWith: anAutentificationSystem and: aCatalog aMerchantProcessor: aMP andASalesBook:  aSalesBook using: aClock.! !
 
 
 !classDefinition: #MerchantProcessor category: #TusLibros!
@@ -1042,37 +1321,36 @@ Object subclass: #Sale
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!Sale methodsFor: 'total' stamp: 'rjs 7/21/2020 19:03:13'!
-total
-	
-	^ items inject: 0 into: [:sum :each | sum + each total].! !
-
-
-!Sale methodsFor: 'initialization' stamp: 'rjs 7/21/2020 19:58:50'!
+!Sale methodsFor: 'accesing' stamp: 'rjs 7/21/2020 19:58:50'!
 belongsTo: anUser
 
 	^ owner = anUser
 ! !
+
+!Sale methodsFor: 'accesing' stamp: 'rjs 7/21/2020 20:15:39'!
+createListOfPurchases: aBlock
+
+	items do: [:each | aBlock value: each item value: each total].
+
+! !
+
+!Sale methodsFor: 'accesing' stamp: 'rjs 7/21/2020 19:27:05'!
+owner
+
+	^owner
+! !
+
+!Sale methodsFor: 'accesing' stamp: 'rjs 7/21/2020 19:03:13'!
+total
+	
+	^ items inject: 0 into: [:sum :each | sum + each total].! !
+
 
 !Sale methodsFor: 'initialization' stamp: 'rjs 7/21/2020 18:55:03'!
 initializeWithCostumer: anOwner andItems: aListOfItems.
 
 	owner := anOwner.
 	items := aListOfItems.! !
-
-!Sale methodsFor: 'initialization' stamp: 'rjs 7/21/2020 19:27:05'!
-owner
-
-	^owner
-! !
-
-
-!Sale methodsFor: 'as yet unclassified' stamp: 'rjs 7/21/2020 20:15:39'!
-createListOfPurchases: aBlock
-
-	items do: [:each | aBlock value: each item value: each total].
-
-! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -1094,24 +1372,25 @@ Object subclass: #SaleRow
 	poolDictionaries: ''
 	category: 'TusLibros'!
 
-!SaleRow methodsFor: 'as yet unclassified' stamp: 'rjs 7/21/2020 18:16:26'!
+!SaleRow methodsFor: 'initialization' stamp: 'rjs 7/21/2020 18:16:26'!
 initializeItem: anItem quantity: anAmount total: aTotal.
 
 	item := anItem.
 	quantity := anAmount .
 	total := aTotal.! !
 
-!SaleRow methodsFor: 'as yet unclassified' stamp: 'rjs 7/21/2020 19:02:36'!
+
+!SaleRow methodsFor: 'accesing' stamp: 'rjs 7/21/2020 19:02:36'!
 item
 
 	^ item! !
 
-!SaleRow methodsFor: 'as yet unclassified' stamp: 'rjs 7/21/2020 19:02:44'!
+!SaleRow methodsFor: 'accesing' stamp: 'rjs 7/21/2020 19:02:44'!
 quantity
 
 	^ quantity! !
 
-!SaleRow methodsFor: 'as yet unclassified' stamp: 'rjs 7/21/2020 19:02:31'!
+!SaleRow methodsFor: 'accesing' stamp: 'rjs 7/21/2020 19:02:31'!
 total
 
 	^ total! !
@@ -1122,7 +1401,7 @@ total
 SaleRow class
 	instanceVariableNames: ''!
 
-!SaleRow class methodsFor: 'as yet unclassified' stamp: 'rjs 7/21/2020 18:16:43'!
+!SaleRow class methodsFor: 'instance creator' stamp: 'rjs 7/21/2020 18:16:43'!
 item: anItem quantity: anAmount total: aTotal
 
 	^self new initializeItem: anItem quantity: anAmount total: aTotal.! !
@@ -1134,6 +1413,16 @@ Object subclass: #StoreTestObjectsFactory
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'TusLibros'!
+
+!StoreTestObjectsFactory methodsFor: 'items' stamp: 'na 7/22/2020 14:29:06'!
+anotherItemSellByTheStore
+	
+	^ 'anotherValidBook'! !
+
+!StoreTestObjectsFactory methodsFor: 'items' stamp: 'na 7/22/2020 14:32:06'!
+anotherItemSellByTheStorePrice
+	
+	^20! !
 
 !StoreTestObjectsFactory methodsFor: 'items' stamp: 'HernanWilkinson 6/17/2013 18:08'!
 itemNotSellByTheStore
@@ -1156,11 +1445,12 @@ createCart
 	
 	^Cart acceptingItemsOf: self defaultCatalog! !
 
-!StoreTestObjectsFactory methodsFor: 'cart' stamp: 'HernanWilkinson 6/17/2013 18:08'!
+!StoreTestObjectsFactory methodsFor: 'cart' stamp: 'na 7/22/2020 14:31:50'!
 defaultCatalog
 	
 	^ Dictionary new
 		at: self itemSellByTheStore put: self itemSellByTheStorePrice;
+		at: self anotherItemSellByTheStore put: self anotherItemSellByTheStorePrice;
 		yourself ! !
 
 
