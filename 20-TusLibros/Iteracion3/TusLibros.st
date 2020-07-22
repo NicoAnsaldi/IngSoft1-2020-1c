@@ -348,10 +348,11 @@ merchantProcessor
 
 	^self! !
 
-!InterfaceRestTest methodsFor: 'auxiliaries' stamp: 'na 7/22/2020 14:35:27'!
+!InterfaceRestTest methodsFor: 'auxiliaries' stamp: 'rjs 7/22/2020 20:15:56'!
 notExpiredCreditCardDate
 
-	^(Month month: (DateAndTime now) monthIndex year: (DateAndTime now) yearNumber + 1)! !
+	^(Month month: (clock now) monthIndex year: (clock now) yearNumber + 1)
+	! !
 
 !InterfaceRestTest methodsFor: 'auxiliaries' stamp: 'rjs 7/21/2020 17:41:15'!
 validCreditCardNumber
@@ -837,7 +838,7 @@ acceptingItemsOf: aCatalog
 	^self new initializeAcceptingItemsOf: aCatalog ! !
 
 
-!Cart class methodsFor: 'as yet unclassified' stamp: 'na 7/22/2020 14:23:22'!
+!Cart class methodsFor: 'error' stamp: 'na 7/22/2020 14:23:22'!
 invalidItemErrorMessage
 	
 	^'Item is not in catalog'! !
@@ -935,6 +936,17 @@ calculateTotal
 	total := cart total.
 	! !
 
+!Cashier methodsFor: 'checkout - private' stamp: 'rjs 7/21/2020 18:59:57'!
+createSale
+
+	| items |
+
+	items := OrderedCollection  new.
+	
+	cart createSaleRow: [:anItem :aQuantity :aTotal | items add: (SaleRow item: anItem quantity: aQuantity total: aTotal) ].
+	
+	sale := Sale withCostumer: creditCard owner andItems: items.! !
+
 !Cashier methodsFor: 'checkout - private' stamp: 'HernanWilkinson 6/17/2013 19:06'!
 debitTotal
 
@@ -966,18 +978,6 @@ initializeToCheckout: aCart charging: aCreditCard throught: aMerchantProcessor r
 	creditCard := aCreditCard.
 	merchantProcessor := aMerchantProcessor.
 	salesBook := aSalesBook! !
-
-
-!Cashier methodsFor: 'as yet unclassified' stamp: 'rjs 7/21/2020 18:59:57'!
-createSale
-
-	| items |
-
-	items := OrderedCollection  new.
-	
-	cart createSaleRow: [:anItem :aQuantity :aTotal | items add: (SaleRow item: anItem quantity: aQuantity total: aTotal) ].
-	
-	sale := Sale withCostumer: creditCard owner andItems: items.! !
 
 "-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- "!
 
@@ -1242,12 +1242,11 @@ defineResumeIn: book for: anItem withTotal: aTotal
 	newTotal  := (book at: anItem ifAbsent: [0] ) + aTotal.
 	book at: anItem put: newTotal.! !
 
-!InterfaceRest methodsFor: 'listPurchases - auxiliaries' stamp: 'na 7/22/2020 17:10:37'!
+!InterfaceRest methodsFor: 'listPurchases - auxiliaries' stamp: 'rjs 7/22/2020 20:17:10'!
 listPurchasesFromUser: anUser andPass: aPassword
 
-	" libro1 cantidad1 libron cantidadn TOTAL"
-
 	| collection book |
+	
 	autentificationSystem autentificateWith: anUser and: aPassword.
 	collection := salesBook select: [ :each | each belongsTo: anUser ].
 	
@@ -1304,14 +1303,6 @@ wrongPassErrorMessage
 withAthoritationSystem: anAutentificationSystem withACatalog: aCatalog aMerchantProcessor: aMP andASalesBook:  aSalesBook using: aClock 
 
 	^ self new initializeWith: anAutentificationSystem and: aCatalog aMerchantProcessor: aMP andASalesBook:  aSalesBook using: aClock.! !
-
-
-!classDefinition: #MerchantProcessor category: #TusLibros!
-Object subclass: #MerchantProcessor
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'TusLibros'!
 
 
 !classDefinition: #Sale category: #TusLibros!
